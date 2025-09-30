@@ -1,0 +1,82 @@
+
+{% extends "base.html" %}
+{% block content %}
+<section class="hero bg-gradient-to-r from-gray-900 to-black text-white py-12 px-6">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-4">
+      🚦 Acceso a la Red y Protección de Infraestructura
+    </h1>
+    <p class="text-lg md:text-xl max-w-3xl mx-auto">
+      Guía esencial para el sector transporte — Ciberseguridad premium para mentes exigentes
+    </p>
+  </div>
+</section>
+
+<section class="container mx-auto px-6 py-10 prose prose-lg">
+  <h2>1. Acceso a la Red</h2>
+  <p><strong>Ethernet y Conmutación:</strong> Ethernet es el estándar LAN más usado. 
+  Los switches dirigen los datos solo al destino correcto, mejorando rendimiento y seguridad.</p>
+  <p><strong>STP (Spanning Tree Protocol):</strong> Previene bucles en switches y garantiza disponibilidad.</p>
+
+  <h3>VLANs y Trunking</h3>
+  <p>Las VLAN segmentan redes físicas en redes lógicas independientes. 
+  Trunking permite que varias VLAN viajen por un único enlace físico usando 802.1Q.</p>
+  <figure>
+    <img src="/static/images/trunking.png" alt="Trunking VLANs" class="rounded-2xl shadow-xl mx-auto">
+    <figcaption class="text-center">Enlace trunk entre dos switches transportando VLANs de logística, administración y pasajeros.</figcaption>
+  </figure>
+
+  <h3>Seguridad de Puerto</h3>
+  <p>Limita qué dispositivos pueden conectarse a un puerto de switch, usando direcciones MAC autorizadas.</p>
+
+  <h2>2. Protección de la Infraestructura</h2>
+  <p><strong>SCADA:</strong> Sistemas que monitorizan y controlan operaciones críticas en tiempo real. 
+  Deben estar aislados y protegidos.</p>
+  <p><strong>Firewalls:</strong> Filtran tráfico de red según reglas y bloquean accesos no autorizados.</p>
+  <p><strong>VPNs:</strong> Crean un túnel cifrado para accesos remotos seguros.</p>
+  <figure>
+    <img src="/static/images/nat.png" alt="NAT" class="rounded-2xl shadow-xl mx-auto">
+    <figcaption class="text-center">Ejemplo de NAT: varios dispositivos privados comparten una única IP pública.</figcaption>
+  </figure>
+
+  <h2>3. Gestión de Identidades y Accesos (IAM)</h2>
+  <ul>
+    <li>Autenticación multifactor (MFA)</li>
+    <li>Roles y privilegios con principio de mínimo privilegio</li>
+    <li>Registro y auditoría de accesos</li>
+  </ul>
+
+  <h2>4. Tecnologías Emergentes</h2>
+  <ul>
+    <li><strong>IDS/IPS:</strong> Detectan y previenen intrusiones en la red.</li>
+    <li><strong>Zero Trust:</strong> Cada acceso debe validarse, nadie es confiable por defecto.</li>
+    <li><strong>Blockchain:</strong> Trazabilidad segura en logística.</li>
+    <li><strong>Inteligencia Artificial:</strong> Detección de anomalías en tráfico de red.</li>
+  </ul>
+
+  <h2>5. Normativa y Cumplimiento</h2>
+  <p>RGPD, LOPDGDD, ISO 27001 y NIS2 son marcos esenciales para proteger datos y redes críticas.</p>
+
+  <h2>6. Casos Prácticos</h2>
+  <p>Aeropuertos: VLANs separan sistemas de control aéreo, administración y Wi-Fi de pasajeros.</p>
+  <p>Ferrocarriles: SCADA gestiona señales y cambios de vía en tiempo real.</p>
+  <p>Logística marítima: blockchain y VPNs aseguran datos de contenedores y rutas.</p>
+
+  <h2>7. Glosario Clave</h2>
+  <ul class="columns-2">
+    <li><strong>VLAN:</strong> Red lógica independiente dentro de una infraestructura física.</li>
+    <li><strong>Trunking:</strong> Transportar varias VLANs por un solo enlace físico.</li>
+    <li><strong>STP:</strong> Protocolo que evita bucles de red.</li>
+    <li><strong>Firewall:</strong> Dispositivo que filtra tráfico según reglas.</li>
+    <li><strong>VPN:</strong> Túnel cifrado para acceso remoto seguro.</li>
+    <li><strong>NAT:</strong> Traducción de IP privadas a públicas.</li>
+    <li><strong>SCADA:</strong> Sistema de supervisión y control en tiempo real.</li>
+    <li><strong>IAM:</strong> Gestión de identidades y accesos.</li>
+  </ul>
+
+  <h2>8. Conclusión</h2>
+  <p>El sector transporte requiere redes seguras, resilientes y protegidas frente a ciberamenazas. 
+  Tecnologías como VLANs, STP, Trunking, Firewalls, VPNs, IAM, SCADA, IDS/IPS y marcos normativos 
+  como ISO 27001 y NIS2 son fundamentales para garantizar la continuidad y la seguridad.</p>
+</section>
+{% endblock %}

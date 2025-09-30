@@ -1,0 +1,250 @@
+# Create premium HTML with embedded diagrams (Trunking & NAT) as base64 images
+import io, base64, matplotlib.pyplot as plt
+
+def make_trunking_png():
+    fig, ax = plt.subplots(figsize=(8,5))
+    # Switch A and B
+    ax.add_patch(plt.Rectangle((0.5, 2.5), 2, 1, fill=True, edgecolor="black"))
+    ax.text(1.5, 3.0, "Switch A", ha="center", va="center", fontsize=10, fontweight="bold")
+    ax.add_patch(plt.Rectangle((5.5, 2.5), 2, 1, fill=True, edgecolor="black"))
+    ax.text(6.5, 3.0, "Switch B", ha="center", va="center", fontsize=10, fontweight="bold")
+    # Trunk link
+    ax.arrow(2.6, 3.0, 2.7, 0, head_width=0.12, head_length=0.2, ec="black", fc="black")
+    ax.text(4, 3.25, "Enlace Trunk (802.1Q)", ha="center", fontsize=9)
+    # VLAN circles A
+    ax.add_patch(plt.Circle((1.0, 4.2), 0.25))
+    ax.text(1.0, 4.6, "VLAN 10\n(Logística)", ha="center", fontsize=8)
+    ax.add_patch(plt.Circle((2.0, 4.2), 0.25))
+    ax.text(2.0, 4.6, "VLAN 20\n(Admin)", ha="center", fontsize=8)
+    ax.add_patch(plt.Circle((1.5, 1.4), 0.25))
+    ax.text(1.5, 1.0, "VLAN 30\n(Wi‑Fi)", ha="center", fontsize=8)
+    # VLAN circles B
+    ax.add_patch(plt.Circle((6.0, 4.2), 0.25))
+    ax.text(6.0, 4.6, "VLAN 10\n(Logística)", ha="center", fontsize=8)
+    ax.add_patch(plt.Circle((7.0, 4.2), 0.25))
+    ax.text(7.0, 4.6, "VLAN 20\n(Admin)", ha="center", fontsize=8)
+    ax.add_patch(plt.Circle((6.5, 1.4), 0.25))
+    ax.text(6.5, 1.0, "VLAN 30\n(Wi‑Fi)", ha="center", fontsize=8)
+    ax.set_xlim(0, 8.5)
+    ax.set_ylim(0.6, 5.2)
+    ax.axis("off")
+    plt.title("Trunking con múltiples VLANs", fontsize=12, fontweight="bold")
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+    plt.close(fig)
+    return base64.b64encode(buf.getvalue()).decode()
+
+def make_nat_png():
+    fig, ax = plt.subplots(figsize=(8,5))
+    # Internet cloud
+    ax.add_patch(plt.Circle((7.0, 3.5), 1.0))
+    ax.text(7.0, 3.5, "Internet\nIP Pública", ha="center", va="center", fontsize=9, fontweight="bold")
+    # Router
+    ax.add_patch(plt.Rectangle((4.2, 3.0), 1.2, 1.0, fill=True, edgecolor="black"))
+    ax.text(4.8, 3.5, "Router\nNAT", ha="center", va="center", fontsize=9, fontweight="bold")
+    # Devices
+    devices = [(0.8, 4.5), (0.8, 3.0), (0.8, 1.5)]
+    labels = ["PC1\n192.168.1.10", "PC2\n192.168.1.11", "PC3\n192.168.1.12"]
+    for (x, y), label in zip(devices, labels):
+        ax.add_patch(plt.Rectangle((x, y), 1.0, 0.6, fill=True, edgecolor="black"))
+        ax.text(x+0.5, y+0.3, label, ha="center", va="center", fontsize=8)
+        ax.arrow(x+1.0, y+0.3, 2.8, 0.2, head_width=0.12, head_length=0.2, fc="black", ec="black")
+    # NAT arrow to Internet
+    ax.arrow(5.4, 3.5, 0.9, 0, head_width=0.12, head_length=0.2, fc="black", ec="black")
+    ax.text(6.1, 3.8, "Traducción NAT", ha="center", fontsize=8)
+    ax.set_xlim(0.4, 8.4)
+    ax.set_ylim(0.8, 5.5)
+    ax.axis("off")
+    plt.title("NAT: IP privadas → IP pública", fontsize=12, fontweight="bold")
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+    plt.close(fig)
+    return base64.b64encode(buf.getvalue()).decode()
+
+trunk_b64 = make_trunking_png()
+nat_b64 = make_nat_png()
+
+# Build premium HTML with Tailwind CDN and embedded images
+html = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acceso a la Red y Protección de Infraestructura — Guía Premium</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="description" content="Guía premium de ciberseguridad aplicada al sector transporte: Ethernet, STP, VLANs, Trunking, Port Security, Wi‑Fi, Firewalls, VPN, Segmentación, NAT, SCADA, IAM, Zero Trust y cumplimiento.">
+</head>
+<body class="bg-black text-zinc-100 selection:bg-emerald-400 selection:text-black">
+  <!-- HERO -->
+  <header class="relative overflow-hidden">
+    <div class="mx-auto max-w-6xl px-6 py-16 text-center">
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">
+        Acceso a la Red y Protección de Infraestructura
+      </h1>
+      <p class="mt-4 text-lg md:text-xl text-zinc-300">
+        Guía esencial para el sector transporte — contenido premium para mentes exigentes
+      </p>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <main class="mx-auto max-w-6xl px-6 pb-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <!-- Sidebar -->
+      <aside class="lg:col-span-3 sticky top-6 h-fit space-y-2">
+        <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5">
+          <h2 class="text-xl font-bold mb-3">Índice</h2>
+          <nav class="text-sm leading-7">
+            <ol class="space-y-1 list-decimal list-inside">
+              <li><a href="#acceso" class="hover:text-emerald-400">Acceso a la Red</a></li>
+              <li><a href="#infra" class="hover:text-emerald-400">Protección de Infraestructura</a></li>
+              <li><a href="#iam" class="hover:text-emerald-400">Gestión de Identidades (IAM)</a></li>
+              <li><a href="#emergentes" class="hover:text-emerald-400">Tecnologías Emergentes</a></li>
+              <li><a href="#normativa" class="hover:text-emerald-400">Normativa y Cumplimiento</a></li>
+              <li><a href="#casos" class="hover:text-emerald-400">Casos Prácticos</a></li>
+              <li><a href="#glosario" class="hover:text-emerald-400">Glosario</a></li>
+              <li><a href="#conclusion" class="hover:text-emerald-400">Conclusión</a></li>
+            </ol>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <article class="lg:col-span-9 prose prose-invert prose-zinc max-w-none">
+        <section id="acceso">
+          <h2>1. Acceso a la Red</h2>
+          <h3>Ethernet y Conmutación</h3>
+          <p><strong>Ethernet</strong> es el estándar más extendido en redes LAN y utiliza direcciones MAC para identificar dispositivos.
+          La <strong>conmutación (switching)</strong> envía cada trama únicamente al destino correcto, mejorando rendimiento y seguridad.</p>
+
+          <h3>Protocolo Spanning Tree (STP)</h3>
+          <p><strong>STP</strong> evita bucles de capa 2 bloqueando enlaces redundantes y reactivándolos si la ruta principal falla. 
+          Es clave para la <em>alta disponibilidad</em> en redes conmutadas.</p>
+
+          <h3>VLANs y Trunking</h3>
+          <p>Las <strong>VLANs</strong> segmentan una red física en redes lógicas independientes. 
+          <strong>Trunking</strong> permite transportar múltiples VLANs por un único enlace físico usando 802.1Q.</p>
+          <figure class="not-prose">
+            <img alt="Trunking con múltiples VLANs" class="rounded-2xl shadow-2xl mx-auto" src="data:image/png;base64,{trunk_b64}">
+            <figcaption class="text-center text-sm text-zinc-400 mt-2">Enlace trunk transportando VLANs de Logística, Administración y Wi‑Fi.</figcaption>
+          </figure>
+
+          <h3>Seguridad de Puerto</h3>
+          <p><strong>Port Security</strong> limita el acceso físico a puertos de switch aceptando solo direcciones MAC autorizadas.</p>
+
+          <h3>Redes Inalámbricas (Wi‑Fi)</h3>
+          <p>Usar <strong>WPA2/WPA3</strong>, segmentación de SSIDs y autenticación robusta. Crítico en entornos con movilidad (estaciones, vehículos).</p>
+        </section>
+
+        <hr>
+
+        <section id="infra">
+          <h2>2. Protección de la Infraestructura y la Información</h2>
+          <p>Las redes de transporte son <strong>infraestructuras críticas</strong>. La seguridad combina controles físicos y cibernéticos.</p>
+
+          <h3>Sistemas SCADA</h3>
+          <p>Supervisan y controlan operaciones en tiempo real (tráfico, señalización, energía). Deben estar <strong>aislados</strong> y monitorizados.</p>
+
+          <h3>Redundancia y Resiliencia</h3>
+          <p>Enlaces de respaldo, conmutación por error y pruebas de DRP garantizan continuidad de servicio.</p>
+
+          <h3>Seguridad de la Información (CIA)</h3>
+          <ul>
+            <li><strong>Confidencialidad</strong>: solo quienes deben, acceden.</li>
+            <li><strong>Integridad</strong>: datos sin alteración no autorizada.</li>
+            <li><strong>Disponibilidad</strong>: sistemas operativos cuando se necesitan.</li>
+          </ul>
+
+          <h3>Firewalls, VPN y Segmentación</h3>
+          <p><strong>Firewalls</strong> filtran tráfico; las <strong>VPN</strong> crean túneles cifrados para accesos remotos; la <strong>segmentación</strong> aísla sistemas críticos.</p>
+
+          <h3>NAT</h3>
+          <p><strong>NAT</strong> permite que múltiples equipos con IP privadas compartan una única IP pública.</p>
+          <figure class="not-prose">
+            <img alt="NAT: IP privadas a IP pública" class="rounded-2xl shadow-2xl mx-auto" src="data:image/png;base64,{nat_b64}">
+            <figcaption class="text-center text-sm text-zinc-400 mt-2">Varios dispositivos privados acceden a Internet a través de un router con NAT.</figcaption>
+          </figure>
+        </section>
+
+        <hr>
+
+        <section id="iam">
+          <h2>3. Gestión de Identidades y Accesos (IAM)</h2>
+          <ul>
+            <li><strong>MFA</strong> y autenticación adaptativa.</li>
+            <li><strong>RBAC/ABAC</strong> y <em>mínimo privilegio</em>.</li>
+            <li>Auditoría continua y <em>just‑in‑time access</em>.</li>
+          </ul>
+        </section>
+
+        <hr>
+
+        <section id="emergentes">
+          <h2>4. Tecnologías Emergentes</h2>
+          <ul>
+            <li><strong>IDS/IPS</strong> para detectar y bloquear intrusiones.</li>
+            <li><strong>Zero Trust</strong>: verificar siempre, segmentar por identidad.</li>
+            <li><strong>Blockchain</strong> para trazabilidad en logística.</li>
+            <li><strong>IA</strong> para detección de anomalías y respuesta.</li>
+          </ul>
+        </section>
+
+        <hr>
+
+        <section id="normativa">
+          <h2>5. Normativa y Cumplimiento</h2>
+          <p><strong>RGPD, LOPDGDD, ISO 27001, NIS2</strong>: marcos esenciales para proteger datos y redes críticas y elevar la gobernanza.</p>
+        </section>
+
+        <hr>
+
+        <section id="casos">
+          <h2>6. Casos Prácticos</h2>
+          <ul>
+            <li><strong>Aeropuertos</strong>: VLANs separan torre de control, administración y Wi‑Fi.</li>
+            <li><strong>Ferrocarriles</strong>: SCADA controla señales y energía con enlaces redundantes.</li>
+            <li><strong>Logística</strong>: VPN + IAM para acceso remoto seguro a plataformas de rutas y reservas.</li>
+          </ul>
+        </section>
+
+        <hr>
+
+        <section id="glosario">
+          <h2>7. Glosario</h2>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <p><strong>VLAN</strong>: red lógica en una misma física.</p>
+            <p><strong>Trunking</strong>: múltiples VLANs por un enlace.</p>
+            <p><strong>STP</strong>: evita bucles de capa 2.</p>
+            <p><strong>Firewall</strong>: filtra tráfico por reglas.</p>
+            <p><strong>VPN</strong>: túnel cifrado remoto.</p>
+            <p><strong>NAT</strong>: IP privadas → IP pública.</p>
+            <p><strong>SCADA</strong>: supervisión y control industrial.</p>
+            <p><strong>IAM</strong>: identidades y accesos.</p>
+          </div>
+        </section>
+
+        <hr>
+
+        <section id="conclusion">
+          <h2>8. Conclusión</h2>
+          <p>La ciberseguridad en transporte exige redes segmentadas, resilientes y observables. 
+          Combinando <strong>VLANs, STP, Trunking, Firewalls, VPN, NAT, IAM, SCADA</strong> e iniciativas de <strong>Zero Trust</strong>, 
+          elevas la seguridad y garantizas la continuidad operativa.</p>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <footer class="border-t border-zinc-800 py-8 text-center text-sm text-zinc-400">
+    © {2025} — Contenido premium de ciberseguridad para el sector transporte.
+  </footer>
+</body>
+</html>
+"""
+
+# Save file
+path = "/mnt/data/acceso-red-proteccion-premium.html"
+with open(path, "w", encoding="utf-8") as f:
+    f.write(html)
+
+path
