@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ciberseguridad en Logística: OT/ICS Security + GRC</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px}
+    .container{max-width:1200px;margin:0 auto;background:#fff;border-radius:15px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+    header{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;padding:40px;text-align:center}
+    header h1{font-size:2.5em;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
+    header p{font-size:1.2em;opacity:.9}
+    nav{background:#2c3e50;padding:15px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+    nav ul{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:20px}
+    nav a{color:#fff;text-decoration:none;padding:8px 16px;border-radius:5px;transition:background .3s}
+    nav a:hover{background:rgba(255,255,255,.2)}
+    .content{padding:40px}
+    section{margin-bottom:50px;scroll-margin-top:80px}
+    h2{color:#2c3e50;font-size:2em;margin-bottom:20px;padding-bottom:10px;border-bottom:3px solid #667eea}
+    h3{color:#34495e;font-size:1.5em;margin:25px 0 15px}
+    h4{color:#546e7a;font-size:1.2em;margin:20px 0 10px}
+    .highlight-box{background:linear-gradient(135deg,#667eea15 0%,#764ba215 100%);border-left:5px solid #667eea;padding:20px;margin:20px 0;border-radius:5px}
+    .warning-box{background:#fff3cd;border-left:5px solid #ffc107;padding:20px;margin:20px 0;border-radius:5px}
+    .danger-box{background:#f8d7da;border-left:5px solid #dc3545;padding:20px;margin:20px 0;border-radius:5px}
+    .success-box{background:#d4edda;border-left:5px solid #28a745;padding:20px;margin:20px 0;border-radius:5px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin:20px 0}
+    .card{background:#fff;border:2px solid #e0e0e0;border-radius:10px;padding:20px;transition:transform .3s, box-shadow .3s}
+    .card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.15)}
+    .card h4{color:#667eea;margin-top:0}
+    ul,ol{margin:15px 0 15px 30px}
+    li{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin:20px 0;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+    th{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:15px;text-align:left}
+    td{padding:12px 15px;border-bottom:1px solid #ddd}
+    tr:hover{background:#f5f5f5}
+    code{background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:'Courier New',monospace}
+    .accordion{background:#f8f9fa;border:1px solid #dee2e6;border-radius:5px;margin:10px 0}
+    .accordion-header{padding:15px;cursor:pointer;font-weight:bold;display:flex;justify-content:space-between;align-items:center;transition:background .3s}
+    .accordion-header:hover{background:#e9ecef}
+    .accordion-content{padding:0 15px;max-height:0;overflow:hidden;transition:max-height .3s ease, padding .3s ease}
+    .accordion-content.active{padding:15px;max-height:2000px}
+    .icon{font-size:1.5em;margin-right:10px}
+    footer{background:#2c3e50;color:#fff;padding:30px;text-align:center}
+    @media (max-width:768px){header h1{font-size:1.8em}nav ul{flex-direction:column;gap:10px}.content{padding:20px}}
+  </style>
+</head>
+<body>
+  <script>
+    function toggleAccordion(header){
+      const content=header.nextElementSibling;const arrow=header.querySelector('span:last-child');
+      if(content.classList.contains('active')){content.classList.remove('active');arrow.textContent='▼'}
+      else{content.classList.add('active');arrow.textContent='▲'}
+    }
+  </script>
+  <div class="container">
+    <header>
+      <h1>🔐 Ciberseguridad en Logística</h1>
+      <p>Guía Completa: OT/ICS Security + GRC en Supply Chain</p>
+    </header>
+
+    <nav>
+      <ul>
+        <li><a href="#introduccion">Introducción</a></li>
+        <li><a href="#fundamentos">Fundamentos OT/ICS</a></li>
+        <li><a href="#amenazas">Amenazas</a></li>
+        <li><a href="#grc">GRC Framework</a></li>
+        <li><a href="#casos">Casos Reales</a></li>
+        <li><a href="#mejores-practicas">Mejores Prácticas</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+        <li><a href="#recursos">Recursos</a></li>
+      </ul>
+    </nav>
+
+    <div class="content">
+      <!-- INTRODUCCIÓN -->
+      <section id="introduccion">
+        <h2>📋 Introducción: La Convergencia IT-OT en Logística</h2>
+        <div class="highlight-box">
+          <strong>¿Por qué es crítico?</strong>
+          <p>La logística moderna integra sistemas de información (IT) con tecnología operacional (OT). Un ciberataque puede paralizar puertos, aeropuertos, almacenes y cadenas de suministro globales, causando pérdidas millonarias.</p>
+        </div>
+        <h3>El Ecosistema Digital de la Logística</h3>
+        <div class="grid">
+          <div class="card"><h4>🖥️ Sistemas IT</h4><ul><li>WMS (Warehouse Management)</li><li>TMS (Transport Management)</li><li>ERP corporativos</li><li>Plataformas e‑commerce</li></ul></div>
+          <div class="card"><h4>⚙️ Sistemas OT</h4><ul><li>SCADA portuarios</li><li>Automatización industrial</li><li>Control de grúas y transportadores</li><li>Sensores IoT</li></ul></div>
+          <div class="card"><h4>📡 Conectividad</h4><ul><li>Telemática de flotas</li><li>GPS tracking</li><li>Contenedores inteligentes</li><li>Drones y vehículos autónomos</li></ul></div>
+        </div>
+        <div class="danger-box"><strong>⚠️ Problema IT/OT:</strong><p>OT pasó de estar aislado (air‑gapped) a estar conectado con IT para ganar eficiencia, exponiéndose a amenazas diseñadas para entornos IT.</p></div>
+      </section>
+
+      <!-- FUNDAMENTOS -->
+      <section id="fundamentos">
+        <h2>🏭 Fundamentos de OT/ICS en Logística</h2>
+        <h3>¿Qué es OT?</h3>
+        <p>Hardware y software que monitoriza y controla procesos físicos.</p>
+        <h3>¿Qué es ICS?</h3>
+        <p>Conjunto de sistemas de control industrial (SCADA, DCS, PLC, etc.).</p>
+        <h3>Componentes críticos</h3>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>SCADA</strong></span><span>▼</span></div><div class="accordion-content"><h4>Uso</h4><ul><li>Puertos: grúas pórtico, posicionamiento de contenedores</li><li>Almacenes: AS/RS</li><li>CDs: clasificación y sorters</li><li>Intermodal: control de tráfico</li></ul><h4>Vulnerabilidades</h4><ul><li>Protocolos sin cifrado (Modbus, DNP3)</li><li>Legacy sin parches</li><li>Acceso remoto débil</li><li>Falta de segmentación</li></ul></div></div>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>PLC</strong></span><span>▼</span></div><div class="accordion-content"><h4>Aplicaciones</h4><ul><li>Cintas transportadoras</li><li>Clasificación automatizada</li><li>Frío industrial</li><li>Puertas y accesos</li></ul><h4>Riesgos</h4><ul><li>Firmware desactualizado</li><li>Credenciales por defecto</li><li>Acceso físico</li><li>Ausencia de logs</li></ul></div></div>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>IoT y Telemática</strong></span><span>▼</span></div><div class="accordion-content"><h4>Dispositivos</h4><ul><li>GPS, sensores de flota</li><li>Contenedores inteligentes</li><li>RFID, beacons, cámaras IP</li><li>Drones</li></ul><h4>Vectores</h4><ul><li>GPS spoofing</li><li>Manipulación de sensores</li><li>Botnets IoT</li><li>Firmware malicioso</li></ul></div></div>
+        <h3>Diferencias IT vs OT</h3>
+        <table><thead><tr><th>Aspecto</th><th>IT</th><th>OT</th></tr></thead><tbody>
+          <tr><td><strong>Prioridad</strong></td><td>Confidencialidad → Integridad → Disponibilidad</td><td>Disponibilidad → Integridad → Confidencialidad</td></tr>
+          <tr><td><strong>Tiempo de actividad</strong></td><td>99.9% aceptable</td><td>99.999% requerido</td></tr>
+          <tr><td><strong>Ciclo de vida</strong></td><td>3–5 años</td><td>15–25 años</td></tr>
+          <tr><td><strong>Parches</strong></td><td>Mensuales</td><td>Esporádicos</td></tr>
+          <tr><td><strong>Impacto</strong></td><td>Pérdida de datos</td><td>Riesgo físico y paradas</td></tr>
+          <tr><td><strong>Conectividad</strong></td><td>Internet</td><td>Antes aislado</td></tr>
+        </tbody></table>
+      </section>
+
+      <!-- AMENAZAS -->
+      <section id="amenazas">
+        <h2>🎯 Amenazas Específicas en Logística</h2>
+        <h3>Mapa CARVER</h3>
+        <div class="warning-box"><strong>CARVER:</strong> Criticality + Accessibility + Recuperability + Vulnerability + Effect + Recognizability</div>
+        <div class="grid">
+          <div class="card"><h4>🔴 Ransomware</h4><p><strong>Impacto:</strong> Paralización completa</p><p><strong>Ejemplos:</strong> Maersk, CMA CGM, Expeditors</p><p><strong>CARVER:</strong> 9/10</p><ul><li>Alta criticidad</li><li>Acceso: phishing/VPN</li><li>Recuperabilidad baja</li></ul></div>
+          <div class="card"><h4>🟠 APT</h4><p><strong>Impacto:</strong> Espionaje y robo de IP</p><p><strong>CARVER:</strong> 8/10</p><ul><li>Objetivo estratégico</li><li>Persistencia</li></ul></div>
+          <div class="card"><h4>🟡 GPS Spoofing/Jamming</h4><p><strong>Impacto:</strong> Desvíos y fraude</p><p><strong>CARVER:</strong> 7/10</p><ul><li>Accesible</li><li>Detectable con monitoreo</li></ul></div>
+        </div>
+        <div class="grid">
+          <div class="card"><h4>🟢 Supply Chain Attacks</h4><p><strong>Impacto:</strong> Efecto cascada</p><p><strong>CARVER:</strong> 9/10</p><ul><li>Difícil de reconocer</li><li>Múltiples víctimas</li></ul></div>
+          <div class="card"><h4>🔵 Insider Threats</h4><p><strong>Impacto:</strong> Sabotaje/fraude</p><p><strong>CARVER:</strong> 8/10</p><ul><li>Acceso legítimo</li><li>Mitigar con controles</li></ul></div>
+          <div class="card"><h4>🟣 IoT Botnets</h4><p><strong>Impacto:</strong> DDoS y exfiltración</p><p><strong>CARVER:</strong> 6/10</p><ul><li>Muchos dispositivos expuestos</li></ul></div>
+        </div>
+        <h3>Amenazas emergentes</h3>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>🚁 Drones y AGVs</strong></span><span>▼</span></div><div class="accordion-content"><ul><li>Hijacking de drones</li><li>Manipulación de AGVs</li><li>Ataques V2X</li><li>Spoofing de sensores</li></ul></div></div>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>📦 Blockchain y Smart Contracts</strong></span><span>▼</span></div><div class="accordion-content"><ul><li>Bugs en contratos inmutables</li><li>51% attacks en redes privadas</li><li>Oracle manipulation</li><li>Compromiso de wallets</li></ul></div></div>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>🤖 IA/ML</strong></span><span>▼</span></div><div class="accordion-content"><ul><li>Adversarial attacks</li><li>Data poisoning</li><li>Model stealing</li><li>Deepfakes para ingeniería social</li></ul></div></div>
+      </section>
+
+      <!-- GRC -->
+      <section id="grc">
+        <h2>📊 GRC Framework para Logística</h2>
+        <h3>Governance, Risk & Compliance</h3>
+        <div class="highlight-box"><strong>Por qué GRC:</strong> Datos sensibles, infraestructura crítica y múltiples normativas requieren un programa robusto para resiliencia y cumplimiento.</div>
+        <h3>Frameworks principales</h3>
+        <div class="grid">
+          <div class="card"><h4>🔷 ISO/IEC 27001</h4><p>SGSI corporativo</p><ul><li>Evaluación y tratamiento de riesgos</li><li>Controles de acceso y criptografía</li><li>Continuidad del negocio</li></ul></div>
+          <div class="card"><h4>🔶 NIST CSF</h4><p>Identify, Protect, Detect, Respond, Recover</p><ul><li>Flexible y adoptado</li><li>Útil para madurez</li></ul></div>
+          <div class="card"><h4>🔸 IEC 62443</h4><p>Seguridad en ICS/OT</p><ul><li>Zonas y conductos</li><li>Niveles SL 1‑4</li><li>Ciclo de vida seguro</li></ul></div>
+        </div>
+        <h3>Implementación de GRC en Logística</h3>
+        <h4>1. Governance (Gobernanza)</h4>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>Estructura organizacional</strong></span><span>▼</span></div><div class="accordion-content"><ul><li><strong>CISO:</strong> Estrategia de seguridad</li><li><strong>Comité de Seguridad:</strong> C‑level + operaciones</li><li><strong>Security Champions:</strong> En puertos, almacenes y transporte</li><li><strong>OT Security Team:</strong> Especialistas ICS</li></ul><h4>Políticas clave</h4><ul><li>Seguridad de la información</li><li>Control de acceso</li><li>Gestión de incidentes</li><li>Continuidad de negocio</li><li>Gestión de terceros</li></ul></div></div>
+
+        <h4>2. Risk Management (Gestión de Riesgos)</h4>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>Proceso de evaluación de riesgos</strong></span><span>▼</span></div><div class="accordion-content"><ol>
+          <li><strong>Contexto:</strong> Alcance (IT/OT), activos críticos y dependencias de la cadena de suministro.</li>
+          <li><strong>Identificación:</strong> Amenazas, vulnerabilidades y escenarios (p. ej., ransomware en WMS, spoofing GPS en flota).</li>
+          <li><strong>Análisis:</strong> Probabilidad × Impacto (seguridad, operacional, legal).</li>
+          <li><strong>Evaluación:</strong> Matriz de riesgo y apetito/tolerancia definidos por negocio.</li>
+          <li><strong>Tratamiento:</strong> Aceptar, mitigar, transferir (seguros), evitar. Planes y propietarios.</li>
+          <li><strong>Monitoreo:</strong> Indicadores y revisión continua (al menos trimestral).</li>
+          <li><strong>Comunicación:</strong> Reportes a comité y partes interesadas.</li>
+        </ol>
+        <h4>Metodologías útiles</h4>
+        <ul>
+          <li><strong>ISO 31000/27005:</strong> Gestión de riesgos y riesgos de SI.</li>
+          <li><strong>FAIR:</strong> Cuantificación económica del riesgo cibernético.</li>
+          <li><strong>Bow‑Tie:</strong> Prevención (barreras) y recuperación.</li>
+        </ul>
+        <h4>Matriz ejemplo</h4>
+        <table><thead><tr><th>Riesgo</th><th>Prob.</th><th>Impacto</th><th>Nivel</th><th>Tratamiento</th></tr></thead><tbody>
+          <tr><td>Ransomware en WMS</td><td>Alta</td><td>Muy alto</td><td>Crítico</td><td>Backups inmutables, EDR, segmentación</td></tr>
+          <tr><td>GPS spoofing flota</td><td>Media</td><td>Alto</td><td>Alto</td><td>Detección anti‑spoofing, doble fuente, SOC</td></tr>
+          <tr><td>Insider en almacén</td><td>Media</td><td>Medio</td><td>Medio</td><td>RBAC, CCTV, UEBA, 4‑ojos</td></tr>
+        </tbody></table>
+        </div></div>
+
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>Evaluaciones en OT/ICS</strong></span><span>▼</span></div><div class="accordion-content"><ul>
+          <li><strong>Descubrimiento de activos</strong> (inventario CMDB + SBOM para OT).</li>
+          <li><strong>Evaluación de arquitectura</strong> (zonas/conductos IEC 62443, DMZ, segmentación).</li>
+          <li><strong>Pruebas de intrusión seguras</strong> y <strong>assessments</strong> sin afectar la producción.</li>
+          <li><strong>Gestión de vulnerabilidades</strong> con ventanas de mantenimiento específicas.</li>
+        </ul></div></div>
+
+        <h4>3. Compliance (Cumplimiento)</h4>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>Normativas y requisitos</strong></span><span>▼</span></div><div class="accordion-content"><ul>
+          <li><strong>GDPR</strong>: protección de datos personales (clientes y empleados).</li>
+          <li><strong>NIS2 / CER</strong> (UE): operadores de servicios esenciales y puertos.</li>
+          <li><strong>ISPS Code</strong> (marítimo) y requisitos de autoridad portuaria.</li>
+          <li><strong>SOX</strong> (si aplica), <strong>PCI DSS</strong> (pagos).</li>
+          <li><strong>Cláusulas contractuales</strong> con cargadores y 3PL.</li>
+        </ul><p>Realiza <em>gap analysis</em> y plan de remediación con dueños y plazos.</p></div></div>
+
+        <h4>4. Third‑Party & Supply Chain Risk</h4>
+        <div class="accordion"><div class="accordion-header" onclick="toggleAccordion(this)"><span><strong>Gestión de terceros</strong></span><span>▼</span></div><div class="accordion-content"><ul>
+          <li>Due diligence y <strong>security questionnaires</strong> (CAIQ/CSA, SIG).</li>
+          <li>Requisitos contractuales: SLAs, notificación de incidentes, derecho de auditoría.</li>
+          <li>Monitoreo continuo: calificaciones externas, SBOM, alertas CVE.</li>
+          <li>Plan de continuidad y exit plan para proveedores críticos.</li>
+        </ul></div></div>
+
+        <h4>KPIs y KRIs</h4>
+        <table><thead><tr><th>Métrica</th><th>Descripción</th><th>Objetivo</th></tr></thead><tbody>
+          <tr><td>MTTD/MTTR</td><td>Tiempo de detección / respuesta</td><td>< 15 min / < 4 h</td></tr>
+          <tr><td>Uptime OT crítico</td><td>Disponibilidad en SCADA/PLC</td><td>> 99.995%</td></tr>
+          <tr><td>Parcheo OT</td><td>% dispositivos con mitigación</td><td>> 90% con compensaciones</td></tr>
+          <tr><td>Riesgo de terceros</td><td>% proveedores con evaluación vigente</td><td>100%</td></tr>
+        </tbody></table>
+      </section>
+
+      <!-- CASOS REALES -->
+      <section id="casos">
+        <h2>🧪 Casos Reales (resumen)</h2>
+        <div class="grid">
+          <div class="card"><h4>NotPetya en logística marítima</h4><p>Parálisis global de terminales y reservas; lecciones sobre segmentación, backups inmutables y DR.</p></div>
+          <div class="card"><h4>Expeditors (2022)</h4><p>Interrupción de operaciones y sistemas de clientes; importancia de BCP y comunicación.</p></div>
+          <div class="card"><h4>GPS spoofing en Mar Negro</h4><p>Desplazamientos falsos de buques; mitigación con fuentes múltiples y detección de anomalías.</p></div>
+        </div>
+      </section>
+
+      <!-- MEJORES PRÁCTICAS -->
+      <section id="mejores-practicas">
+        <h2>✅ Mejores Prácticas OT/ICS + GRC</h2>
+        <div class="grid">
+          <div class="card"><h4>Arquitectura</h4><ul><li>Zonas y conductos IEC 62443</li><li>DMZ industrial y salto controlado</li><li>Lista blanca de comunicaciones</li></ul></div>
+          <div class="card"><h4>Protecciones clave</h4><ul><li>EDR/XDR y monitoreo OT pasivo</li><li>Backups 3‑2‑1 con inmutabilidad</li><li>Hardening de PLC/HMI</li></ul></div>
+          <div class="card"><h4>Personas y procesos</h4><ul><li>Formación anti‑phishing</li><li>Plan IR con tabletop exercises</li><li>Gestión de cambios y ventanas OT</li></ul></div>
+        </div>
+      </section>
+
+      <!-- ROADMAP -->
+      <section id="roadmap">
+        <h2>🗺️ Roadmap de Implantación (90‑180 días)</h2>
+        <ol>
+          <li><strong>Día 0‑30:</strong> Inventario IT/OT, definición de alcance, políticas mínimas y creación de comité.</li>
+          <li><strong>Día 31‑60:</strong> Evaluación de riesgos (27005/FAIR), segmentación básica, backups inmutables.</li>
+          <li><strong>Día 61‑120:</strong> SOC/NOC integrados, monitoreo OT pasivo, ejercicios de respuesta a incidentes.</li>
+          <li><strong>Día 121‑180:</strong> Gestión de terceros, KPIs/KRIs, auditoría de cumplimiento (NIS2, 27001, 62443).</li>
+        </ol>
+      </section>
+
+      <!-- RECURSOS -->
+      <section id="recursos">
+        <h2>📚 Recursos</h2>
+        <ul>
+          <li>ISO/IEC 27001 y 27005 (gestión de riesgos).</li>
+          <li>IEC 62443 (seguridad en sistemas industriales).</li>
+          <li>NIST CSF y SP 800‑82 (ICS).</li>
+          <li>ENISA y CISA: guías para OT/ICS y logística.</li>
+        </ul>
+        <div class="success-box"><strong>Consejo:</strong> Documenta decisiones de riesgo y enlázalas a controles y evidencias. Facilita auditorías y acelera mejoras.</div>
+      </section>
+    </div>
+
+    <footer>
+      <p>sualba.dev © 2025 · Guía OT/ICS + GRC para Logística · Puedes reutilizar citando la fuente.</p>
+    </footer>
+  </div>
+</body>
+</html>
+
+ 

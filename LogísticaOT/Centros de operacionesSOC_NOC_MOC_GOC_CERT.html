@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SOC · NOC · MOC · GOC · CERT — Guía rápida y amena</title>
+  <meta name="description" content="Guía visual y amena para entender SOC, NOC, MOC, GOC y CERT/CSIRT. Explicaciones sencillas, tabla comparativa, glosario y preguntas frecuentes. Lista para compartir." />
+  <meta name="author" content="Tu Blog" />
+  <meta property="og:title" content="SOC · NOC · MOC · GOC · CERT — Guía rápida" />
+  <meta property="og:description" content="Explicación clara y visual de los principales centros de operaciones: qué hace cada uno y en qué se diferencian." />
+  <meta property="og:type" content="article" />
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    :root{
+      --bg: #0f172a;          /* slate-900 */
+      --card: #111827cc;      /* near slate-900 with opacity */
+      --muted: #94a3b8;       /* slate-400 */
+      --fg: #e5e7eb;          /* slate-200 */
+      --brand: #06b6d4;       /* cyan-500 */
+      --ok: #22c55e;          /* green-500 */
+      --warn: #f59e0b;        /* amber-500 */
+      --accent: #8b5cf6;      /* violet-500 */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius-xl: 16px;
+    }
+    html,body{margin:0;padding:0}
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(6,182,212,.15), transparent 60%),
+                  radial-gradient(1100px 700px at -10% 20%, rgba(139,92,246,.12), transparent 55%),
+                  var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header.hero{position:relative;padding:80px 0 40px}
+    .title{font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:.3px;margin:0 0 10px}
+    .subtitle{color:var(--muted);font-size:clamp(16px,2.2vw,20px);margin:0}
+    .pill{
+      display:inline-flex;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.1);
+      padding:8px 12px;border-radius:999px;background:rgba(17,24,39,.6);backdrop-filter: blur(6px);
+      color:#d1fae5;font-weight:600;box-shadow:var(--shadow)
+    }
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+    .card{
+      padding:20px; border:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-radius: var(--radius-xl); box-shadow: var(--shadow);
+    }
+    .card h3{margin:0 0 6px;font-size:20px}
+    .card p{margin:0 0 10px;color:var(--fg)}
+    .tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.4px;opacity:.95}
+    .tag.soc{background:#064e3b;color:#a7f3d0;border:1px solid #065f46}
+    .tag.noc{background:#422006;color:#fde68a;border:1px solid #854d0e}
+    .tag.moc{background:#2e1065;color:#ddd6fe;border:1px solid #6d28d9}
+    .tag.cert{background:#111827;color:#93c5fd;border:1px solid #1f2937}
+    .tag.goc{background:#0c4a6e;color:#93c5fd;border:1px solid #075985}
+    .icon{width:26px;height:26px;vertical-align:-6px;margin-right:8px}
+
+    nav.toc{position:sticky;top:0;background:rgba(2,6,23,.7);backdrop-filter: blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}
+    nav.toc .inner{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    nav.toc a{color:var(--fg);text-decoration:none;padding:10px 12px;border-radius:10px;border:1px solid transparent}
+    nav.toc a:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.06)}
+
+    .compare{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .compare th,.compare td{padding:12px 14px;text-align:left}
+    .compare thead th{font-size:14px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.5px}
+    .compare tbody tr{background:rgba(255,255,255,.06)}
+    .compare tbody tr td:first-child{border-radius:12px 0 0 12px}
+    .compare tbody tr td:last-child{border-radius:0 12px 12px 0}
+
+    details{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:14px 16px;border-radius:12px}
+    details+details{margin-top:10px}
+    summary{cursor:pointer;font-weight:700}
+
+    .footer{opacity:.9;color:var(--muted);font-size:14px;margin-top:40px}
+    .btn{
+      display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.15);padding:10px 14px;border-radius:12px;color:var(--fg);text-decoration:none
+    }
+    .btn:hover{background:rgba(255,255,255,.06)}
+    .share{display:flex;gap:10px;flex-wrap:wrap}
+
+    /* Print friendly */
+    @media print{
+      body{background:#fff;color:#111}
+      .card,details{box-shadow:none;border-color:#ddd}
+      nav.toc{position:static;background:#fff}
+      .btn,.share{display:none}
+    }
+  </style>
+</head>
+<body>
+  <nav class="toc">
+    <div class="container inner">
+      <div class="pill">🛰️ Guía rápida · Centros de Operaciones</div>
+      <div>
+        <a href="#que-es">Qué es cada uno</a>
+        <a href="#comparativa">Comparativa</a>
+        <a href="#glosario">Glosario</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero container">
+    <h1 class="title">SOC · NOC · MOC · GOC · CERT/CSIRT</h1>
+    <p class="subtitle">Una explicación amena para entender <strong>qué controla cada centro</strong>, cómo se relacionan y en qué se diferencian. Incluye tabla comparativa, glosario y preguntas frecuentes.</p>
+    <div style="margin-top:16px" class="share">
+      <a class="btn" href="#comparativa" title="Ir a la comparativa">🔎 Ver comparativa</a>
+      <a class="btn" href="#faq" title="Ir a preguntas frecuentes">💡 FAQ</a>
+    </div>
+  </header>
+
+  <main class="container" id="que-es">
+    <section class="grid" aria-label="Tarjetas explicativas">
+      <!-- GOC -->
+      <article class="card" id="goc" aria-labelledby="goc-title">
+        <h3 id="goc-title"><span class="tag goc">GOC</span> Centro Global de Operaciones</h3>
+        <p>El <strong>GOC</strong> coordina y supervisa operaciones críticas a nivel mundial (tecnología, seguridad, continuidad, logística). Piensa en él como la <em>sala de mando</em> de una gran organización.</p>
+        <ul>
+          <li>Visión y coordinación global</li>
+          <li>Escala multinacional (cloud, grandes corporaciones)</li>
+          <li>Conecta con SOC, NOC y otras áreas</li>
+        </ul>
+      </article>
+
+      <!-- SOC -->
+      <article class="card" id="soc" aria-labelledby="soc-title">
+        <h3 id="soc-title"><span class="tag soc">SOC</span> Security Operations Center</h3>
+        <p>El <strong>SOC</strong> protege frente a ciberataques: <em>monitoriza</em>, <em>detecta</em> y <em>responde</em> a incidentes de seguridad.</p>
+        <ul>
+          <li>SIEM/EDR/XDR, threat intelligence</li>
+          <li>Respuesta a incidentes y contención</li>
+          <li>Apoyo a cumplimiento (ISO 27001, NIST, GDPR)</li>
+        </ul>
+      </article>
+
+      <!-- NOC -->
+      <article class="card" id="noc" aria-labelledby="noc-title">
+        <h3 id="noc-title"><span class="tag noc">NOC</span> Network Operations Center</h3>
+        <p>El <strong>NOC</strong> garantiza que la <strong>red y los servicios</strong> estén disponibles 24/7.</p>
+        <ul>
+          <li>Monitorización de red, servidores y comunicaciones</li>
+          <li>Gestión de capacidad y rendimiento</li>
+          <li>Intervención rápida ante caídas</li>
+        </ul>
+      </article>
+
+      <!-- MOC -->
+      <article class="card" id="moc" aria-labelledby="moc-title">
+        <h3 id="moc-title"><span class="tag moc">MOC</span> Maintenance Operations Center</h3>
+        <p>El <strong>MOC</strong> coordina el <strong>mantenimiento</strong> preventivo y correctivo (muy usado en aviación, industria y telco).</p>
+        <ul>
+          <li>Planificación de paradas y reparaciones</li>
+          <li>Gestión de repuestos y SLA</li>
+          <li>Seguridad operacional</li>
+        </ul>
+      </article>
+
+      <!-- CERT/CSIRT -->
+      <article class="card" id="cert" aria-labelledby="cert-title">
+        <h3 id="cert-title"><span class="tag cert">CERT / CSIRT</span> Respuesta a Emergencias</h3>
+        <p>Equipos especializados en <strong>respuesta a incidentes</strong>. Pueden ser corporativos o a nivel <strong>nacional</strong>.</p>
+        <ul>
+          <li>Gestión de incidentes críticos</li>
+          <li>Asesoría y coordinación con otras entidades</li>
+          <li>Publicación de alertas y guías</li>
+        </ul>
+      </article>
+    </section>
+
+    <section id="comparativa" style="margin-top:28px">
+      <h2>🔎 Comparativa rápida</h2>
+      <table class="compare" role="table" aria-label="Tabla comparativa">
+        <thead>
+          <tr>
+            <th>Centro</th>
+            <th>Enfoque principal</th>
+            <th>Ejemplos de tareas</th>
+            <th>Indicadores clave</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag goc">GOC</span></td>
+            <td>Coordinación global y continuidad</td>
+            <td>Priorizar eventos críticos, crisis management</td>
+            <td>MTTR global, continuidad de negocio</td>
+          </tr>
+          <tr>
+            <td><span class="tag soc">SOC</span></td>
+            <td>Ciberseguridad y respuesta a incidentes</td>
+            <td>Correlación SIEM, contención, forense</td>
+            <td>MTTD/MTTR, tasa de falsos positivos</td>
+          </tr>
+          <tr>
+            <td><span class="tag noc">NOC</span></td>
+            <td>Disponibilidad de red y servicios</td>
+            <td>Monitorizar uptime, capacity planning</td>
+            <td>SLAs, disponibilidad, latencia</td>
+          </tr>
+          <tr>
+            <td><span class="tag moc">MOC</span></td>
+            <td>Mantenimiento técnico</td>
+            <td>Paradas planificadas, reparaciones</td>
+            <td>Tiempo medio entre fallos (MTBF)</td>
+          </tr>
+          <tr>
+            <td><span class="tag cert">CERT/CSIRT</span></td>
+            <td>Emergencias y coordinación externa</td>
+            <td>Gestión de incidentes mayores, advisories</td>
+            <td>Tiempo de notificación y de contención</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="glosario" style="margin-top:28px">
+      <h2>📚 Glosario mínimo</h2>
+      <div class="grid">
+        <div class="card"><strong>SIEM</strong>: Plataforma que centraliza logs y correlaciona eventos (ej. Wazuh, Splunk).</div>
+        <div class="card"><strong>EDR/XDR</strong>: Agentes en endpoints para detectar y responder amenazas.</div>
+        <div class="card"><strong>IOC</strong>: Indicadores de compromiso (IPs, hashes, dominios maliciosos).</div>
+        <div class="card"><strong>SLA</strong>: Acuerdo de nivel de servicio (objetivos de disponibilidad/tiempos).</div>
+      </div>
+    </section>
+
+    <section id="faq" style="margin-top:28px">
+      <h2>💡 Preguntas frecuentes</h2>
+      <details>
+        <summary>¿En qué se diferencia SOC vs NOC?</summary>
+        <p>El <strong>SOC</strong> mira la <em>seguridad</em> (amenazas e incidentes). El <strong>NOC</strong> mira la <em>operación de la red</em> (uptime y rendimiento). Suelen colaborar estrechamente.</p>
+      </details>
+      <details>
+        <summary>¿CERT es lo mismo que SOC?</summary>
+        <p>No exactamente. Un <strong>CERT/CSIRT</strong> es un equipo de <em>respuesta</em> (a veces nacional). Un <strong>SOC</strong> además <em>monitoriza</em> continuamente.</p>
+      </details>
+      <details>
+        <summary>¿Qué es un GOC famoso?</summary>
+        <p>Por ejemplo, el <em>Global Operations Center</em> de grandes tecnológicas (p.ej., coordina operaciones y continuidad a escala mundial).</p>
+      </details>
+    </section>
+
+    <section style="margin-top:28px">
+      <h2>🧩 Cómo se conectan</h2>
+      <p>En organizaciones internacionales, el <strong>GOC</strong> coordina alto nivel; <strong>SOC</strong> y <strong>NOC</strong> operan en su dominio (seguridad / red) y escalan incidentes mayores; <strong>MOC</strong> asegura la capacidad técnica y el mantenimiento; y el <strong>CERT/CSIRT</strong> apoya respuesta extendida y comunicación externa.</p>
+    </section>
+
+    <section class="footer">
+      <p>¿Te resultó útil? ¡Compártelo! ⤵️</p>
+      <div class="share">
+        <a class="btn" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=Gu%C3%ADa%20r%C3%A1pida%20SOC%20NOC%20MOC%20GOC%20CERT&url=https://tublog.ejemplo">🐦 Compartir en X/Twitter</a>
+        <a class="btn" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=https://tublog.ejemplo">💼 Compartir en LinkedIn</a>
+        <a class="btn" href="#top" aria-label="Volver arriba">⬆️ Ir arriba</a>
+      </div>
+      <p style="margin-top:14px">Licencia: puedes reutilizar este contenido citando la fuente.</p>
+    </section>
+  </main>
+
+  <script>
+    // Suave scroll para anclas
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{
+        const id = a.getAttribute('href');
+        const el = document.querySelector(id);
+        if(el){
+          e.preventDefault();
+          el.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      });
+    });
+  </script>
+</body>
+</html>
