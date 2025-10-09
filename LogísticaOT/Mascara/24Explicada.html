@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explicación DHCP Pool CASA</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121735; --ink:#e8edf7; --muted:#9fb0c7; --line:rgba(255,255,255,.12);
+      --c1:#6de1ff; --c2:#7c5cff; --ok:#2ad4a4; --warn:#ffcc66; --bad:#ff6b6b; --radius:18px;
+    }
+    body{margin:0; font-family:system-ui, sans-serif; background:#0b1020; color:var(--ink); line-height:1.6}
+    header{background:linear-gradient(180deg, rgba(11,16,32,.9), rgba(11,16,32,.5)); border-bottom:1px solid var(--line);}
+    .wrap{max-width:1000px; margin:0 auto; padding:22px 18px}
+    h1{font-size:clamp(28px,4.5vw,46px); margin:8px 0; color:var(--c1)}
+    h2{margin-top:24px; color:var(--c2)}
+    pre{background:#0c142d; border:1px solid var(--line); border-radius:14px; padding:14px; overflow:auto}
+    code{font-family:monospace; font-size:14px}
+    .card{background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-top:20px}
+    ul{margin:0; padding-left:20px}
+    .kbd{background:rgba(255,255,255,.08); padding:2px 6px; border-radius:6px; font-family:monospace}
+    table{width:100%; border-collapse:collapse; margin-top:10px}
+    th,td{padding:10px; border:1px solid var(--line); text-align:left}
+    thead{background:rgba(255,255,255,.07)}
+    footer{text-align:center; color:var(--muted); margin:30px 0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Explicando <code>ip dhcp pool CASA ...</code></h1>
+      <p class="sub">Desglose detallado de la configuración de un pool DHCP para que cualquiera pueda entenderlo desde cero.</p>
+    </div>
+  </header>
+  <main class="wrap">
+
+    <section class="card">
+      <h2>El bloque completo</h2>
+      <pre><code>ip dhcp pool CASA
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 192.168.1.1
+ lease 7</code></pre>
+    </section>
+
+    <section class="card">
+      <h2><code>ip dhcp pool CASA</code></h2>
+      <p>📍 Aquí se crea un <strong>pool DHCP</strong>, es decir, un grupo de direcciones IP que el router podrá entregar automáticamente a los dispositivos. El nombre <em>CASA</em> es solo una etiqueta para identificar este conjunto de configuraciones.</p>
+      <p>👉 Piensa en un parking llamado CASA, donde las plazas son las direcciones IP que se van a repartir.</p>
+    </section>
+
+    <section class="card">
+      <h2><code>network 192.168.1.0 255.255.255.0</code></h2>
+      <p>📍 Indica la red desde la que se van a entregar direcciones.</p>
+      <p>La dirección <code>192.168.1.0</code> es la <strong>dirección de red</strong>. La máscara <code>255.255.255.0</code> indica que se trata de una subred tipo <code>/24</code>, es decir, 24 bits para red y 8 bits para hosts.</p>
+      <p>Esto significa que dentro de esta subred hay 256 direcciones en total: la primera (<code>.0</code>) es la red, la última (<code>.255</code>) es el broadcast, y las utilizables van de la <code>.1</code> a la <code>.254</code>. En total, 254 direcciones disponibles para los dispositivos.</p>
+      <table>
+        <thead><tr><th>Concepto</th><th>Dirección</th></tr></thead>
+        <tbody>
+          <tr><td>Dirección de red</td><td><span class="kbd">192.168.1.0</span></td></tr>
+          <tr><td>Primer host</td><td><span class="kbd">192.168.1.1</span></td></tr>
+          <tr><td>Último host</td><td><span class="kbd">192.168.1.254</span></td></tr>
+          <tr><td>Broadcast</td><td><span class="kbd">192.168.1.255</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2><code>default-router 192.168.1.1</code></h2>
+      <p>📍 Esta es la <strong>puerta de enlace</strong> o <em>gateway</em>. Significa que todos los dispositivos que reciban una IP sabrán que para salir a Internet deben enviar el tráfico al <code>192.168.1.1</code>, que suele ser la dirección del propio router.</p>
+    </section>
+
+    <section class="card">
+      <h2><code>dns-server 192.168.1.1</code></h2>
+      <p>📍 Define el servidor <strong>DNS</strong> que usarán los dispositivos para traducir nombres como <code>www.google.com</code> en direcciones IP. Aquí se usa el propio router (<code>192.168.1.1</code>), que a su vez reenviará las consultas a servidores DNS de Internet.</p>
+    </section>
+
+    <section class="card">
+      <h2><code>lease 7</code></h2>
+      <p>📍 Es el <strong>tiempo de préstamo</strong> de la dirección IP. Indica que cada dispositivo podrá usar la IP durante 7 días antes de que expire y deba renovarse.</p>
+    </section>
+
+    <section class="card">
+      <h2>Resumen práctico</h2>
+      <ul>
+        <li><strong>Pool CASA</strong>: conjunto de direcciones a repartir.</li>
+        <li><strong>Red 192.168.1.0/24</strong>: 254 direcciones disponibles (de la .1 a la .254).</li>
+        <li><strong>Gateway</strong>: 192.168.1.1 (salida hacia Internet).</li>
+        <li><strong>DNS</strong>: 192.168.1.1 (traductor de nombres).</li>
+        <li><strong>Lease</strong>: 7 días de duración de la concesión de la IP.</li>
+      </ul>
+      <p>👉 Ejemplo: Laptop → 192.168.1.2, Smartphone → 192.168.1.3, Consola → 192.168.1.4, todos con puerta de enlace y DNS <code>192.168.1.1</code>.</p>
+    </section>
+
+  </main>
+  <footer>
+    <small>DHCP explicado de manera sencilla · /24 = 255.255.255.0 = 254 direcciones usables</small>
+  </footer>
+</body>
+</html>

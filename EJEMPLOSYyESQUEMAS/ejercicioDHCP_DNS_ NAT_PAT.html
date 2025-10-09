@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chuleta Visual · DHCP · DNS · NAT · PAT</title>
+  <style>
+    :root{
+      --bg:#0b1020;          /* Fondo oscuro profesional */
+      --panel:#121735;       /* Tarjetas */
+      --muted:#97a3b3;       /* Texto secundario */
+      --text:#e8edf7;        /* Texto principal */
+      --primary:#6de1ff;     /* Cian acento */
+      --accent:#7c5cff;      /* Violeta acento */
+      --success:#2ad4a4;
+      --danger:#ff6b6b;
+      --warning:#ffcc66;
+      --shadow: 0 8px 26px rgba(0,0,0,.35), 0 2px 10px rgba(0,0,0,.2);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background: radial-gradient(1200px 800px at 85% -10%, #1a2250 0%, transparent 60%),
+                         radial-gradient(900px 600px at -10% 10%, #132760 0%, transparent 60%),
+                         var(--bg);
+      line-height:1.6;
+    }
+    header{
+      position:sticky; top:0; backdrop-filter: blur(6px);
+      background:linear-gradient(180deg, rgba(11,16,32,.75), rgba(11,16,32,.4));
+      border-bottom:1px solid rgba(255,255,255,.06);
+      z-index:50;
+    }
+    .container{max-width:1100px; margin:0 auto; padding:24px 18px}
+    .hero{display:grid; grid-template-columns:1.1fr .9fr; gap:28px; align-items:center; padding:32px 0}
+    .badge{display:inline-flex; align-items:center; gap:8px; font-weight:600; letter-spacing:.3px; color:#06141b; background:linear-gradient(90deg, var(--primary), var(--accent)); border-radius:999px; padding:6px 12px}
+    .title{font-size:clamp(28px, 5vw, 48px); line-height:1.08; margin:10px 0 8px}
+    .subtitle{color:var(--muted)}
+    .cta-row{display:flex; flex-wrap:wrap; gap:12px; margin-top:18px}
+    .btn{border:1px solid rgba(255,255,255,.12); color:var(--text); background:rgba(255,255,255,.02); padding:10px 14px; border-radius:12px; font-weight:700; letter-spacing:.2px; box-shadow:var(--shadow); cursor:pointer}
+    .btn.primary{background: linear-gradient(90deg, var(--accent), var(--primary)); color:#07131a; border:0}
+    .grid{display:grid; gap:18px}
+    .cards{grid-template-columns:repeat(2, minmax(0,1fr))}
+    @media (max-width:900px){ .hero{grid-template-columns:1fr} .cards{grid-template-columns:1fr} }
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); position:relative; overflow:hidden}
+    .card h3{margin:6px 0 10px; font-size:20px}
+    .eyebrow{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.18em}
+    .pill{display:inline-block; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); color:var(--muted)}
+    .split{display:grid; grid-template-columns:1.05fr .95fr; gap:18px}
+    @media (max-width:900px){ .split{grid-template-columns:1fr} }
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12.5px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:3px 6px}
+    pre{margin:0; padding:14px; overflow:auto; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:#0c142d}
+    code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:13px}
+    details{border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:10px 12px; transition:background .2s}
+    details[open]{background:rgba(255,255,255,.04)}
+    summary{cursor:pointer; font-weight:700}
+
+    /* Chips de estado */
+    .chip{display:inline-flex; align-items:center; gap:8px; padding:5px 10px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.2px; border:1px solid rgba(255,255,255,.1)}
+    .chip.danger{background:rgba(255,107,107,.12); color:#ffdede; border-color:rgba(255,107,107,.35)}
+    .chip.safe{background:rgba(42,212,164,.12); color:#d7fff4; border-color:rgba(42,212,164,.35)}
+
+    /* Tabla */
+    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:14px}
+    th, td{padding:12px 14px; text-align:left}
+    thead th{background:rgba(255,255,255,.06); font-size:13px; text-transform:uppercase; letter-spacing:.12em; color:#cbd5e1}
+    tbody tr:not(:last-child) td{border-bottom:1px dashed rgba(255,255,255,.12)}
+
+    /* SVG helpers */
+    .svg-wrap{background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:12px}
+
+    /* Sutileza animada */
+    .glow{position:absolute; inset:auto -20% -40% -20%; height:160px; background:radial-gradient(closest-side, rgba(125,95,255,.28), transparent 65%)}
+    .hero-blob{position:relative}
+    .hero-blob::after{content:""; position:absolute; inset:-40px; background: radial-gradient(200px 140px at 20% 30%, rgba(109,225,255,.23), transparent 60%), radial-gradient(200px 160px at 80% 70%, rgba(124,92,255,.22), transparent 60%); filter: blur(28px); opacity:.8; z-index:-1}
+
+    .section-title{display:flex; align-items:center; gap:10px; margin:4px 0 12px}
+    .section-title .dot{width:10px; height:10px; border-radius:50%; background:linear-gradient(90deg, var(--primary), var(--accent)); box-shadow:0 0 0 4px rgba(109,225,255,.12)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+      <div style="display:flex; align-items:center; gap:12px">
+        <span class="badge">Módulo 4 · Servicios IP</span>
+        <span class="pill">DHCP</span><span class="pill">DNS</span><span class="pill">NAT</span><span class="pill">PAT</span>
+      </div>
+      <button class="btn" onclick="toggleAll(true)">Expandir todo</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-blob">
+        <h1 class="title">Chuleta Visual · DHCP · DNS · NAT · PAT</h1>
+        <p class="subtitle">Ciberseguridad en redes y sistemas de Transporte y Logística · <span style="color:var(--primary)">Fundamentos</span> y <span style="color:var(--accent)">Aplicaciones prácticas</span></p>
+        <div class="cta-row">
+          <button class="btn primary" onclick="scrollToId('dhcp')">Empezar por DHCP</button>
+          <button class="btn" onclick="scrollToId('tabla')">Ir al resumen</button>
+        </div>
+      </div>
+      <div class="card split">
+        <div>
+          <div class="eyebrow">Objetivo</div>
+          <h3>Aprende y recuerda en minutos</h3>
+          <p>Configuración práctica, fundamentos de protocolos, diagramas y seguridad ofensiva/defensiva para novatos y seniors.</p>
+          <ul>
+            <li>✔️ DHCP: flujo <span class="kbd">DORA</span> + ejemplo real</li>
+            <li>✔️ DNS: nombre → IP + defensa <span class="kbd">DNSSEC</span></li>
+            <li>✔️ NAT/PAT: mapeos IP:PUERTO + riesgos</li>
+          </ul>
+        </div>
+        <div class="svg-wrap">
+          <!-- Mini diagrama general -->
+          <svg viewBox="0 0 520 230" width="100%" height="auto" aria-label="Diagrama general">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0%" stop-color="#6de1ff"/><stop offset="100%" stop-color="#7c5cff"/>
+              </linearGradient>
+            </defs>
+            <rect x="10" y="15" width="160" height="70" rx="12" fill="#1a2250" stroke="url(#g1)"/>
+            <text x="90" y="40" text-anchor="middle" fill="#e8edf7" font-size="13">LAN (DHCP/DNS)</text>
+            <text x="90" y="62" text-anchor="middle" fill="#97a3b3" font-size="12">192.168.1.0/24</text>
+
+            <rect x="210" y="60" width="130" height="110" rx="14" fill="#121735" stroke="#6de1ff"/>
+            <text x="275" y="90" text-anchor="middle" fill="#e8edf7" font-size="13">Router</text>
+            <text x="275" y="108" text-anchor="middle" fill="#97a3b3" font-size="12">NAT / PAT</text>
+
+            <rect x="390" y="15" width="120" height="70" rx="12" fill="#1a2250" stroke="#7c5cff"/>
+            <text x="450" y="40" text-anchor="middle" fill="#e8edf7" font-size="13">Internet</text>
+            <text x="450" y="62" text-anchor="middle" fill="#97a3b3" font-size="12">203.0.113.1</text>
+
+            <circle cx="55" cy="135" r="16" fill="#2ad4a4"/>
+            <text x="55" y="139" text-anchor="middle" fill="#06141b" font-size="12">PC1</text>
+            <circle cx="105" cy="135" r="16" fill="#ffcc66"/>
+            <text x="105" y="139" text-anchor="middle" fill="#06141b" font-size="12">PC2</text>
+            <circle cx="155" cy="135" r="16" fill="#ff6b6b"/>
+            <text x="155" y="139" text-anchor="middle" fill="#06141b" font-size="12">PC3</text>
+
+            <path d="M170 135 H 210" stroke="#6de1ff" stroke-width="2" marker-end="url(#arrow)"/>
+            <path d="M340 115 H 390" stroke="#7c5cff" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c5cff"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- DHCP -->
+    <section id="dhcp" class="grid cards">
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h3>DHCP · Configuración rápida</h3></div>
+        <p>Red doméstica con <strong>laptop</strong>, <strong>smartphone</strong> y <strong>consola</strong>. El router actúa como servidor DHCP y entrega IPs automáticamente.</p>
+        <pre><code>ip dhcp pool CASA
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 192.168.1.1
+ lease 7
+</code></pre>
+        <p><strong>Resultado esperado:</strong> Laptop → <span class="kbd">192.168.1.2</span> · Smartphone → <span class="kbd">192.168.1.3</span> · Consola → <span class="kbd">192.168.1.4</span></p>
+        <details>
+          <summary>Ver flujo DORA</summary>
+          <div class="svg-wrap" style="margin-top:10px">
+            <svg viewBox="0 0 520 140" width="100%" height="auto">
+              <defs><linearGradient id="g2" x1="0" x2="1"><stop offset="0%" stop-color="#6de1ff"/><stop offset="100%" stop-color="#7c5cff"/></linearGradient></defs>
+              <rect x="30" y="20" width="120" height="40" rx="10" fill="#1a2250" stroke="url(#g2)"/>
+              <text x="90" y="45" text-anchor="middle" fill="#e8edf7">Cliente</text>
+              <rect x="370" y="20" width="120" height="40" rx="10" fill="#1a2250" stroke="url(#g2)"/>
+              <text x="430" y="45" text-anchor="middle" fill="#e8edf7">Servidor DHCP</text>
+              <g stroke="#6de1ff" stroke-width="2" marker-end="url(#arrow)">
+                <path d="M150 40 H 370"/>
+              </g>
+              <text x="260" y="30" text-anchor="middle" fill="#97a3b3" font-size="12">Discover →</text>
+              <g stroke="#7c5cff" stroke-width="2" marker-end="url(#arrow)">
+                <path d="M370 70 H 150"/>
+              </g>
+              <text x="260" y="85" text-anchor="middle" fill="#97a3b3" font-size="12">← Offer</text>
+              <g stroke="#6de1ff" stroke-width="2" marker-end="url(#arrow)">
+                <path d="M150 100 H 370"/>
+              </g>
+              <text x="260" y="115" text-anchor="middle" fill="#97a3b3" font-size="12">Request →</text>
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#6de1ff"/>
+                </marker>
+              </defs>
+            </svg>
+            <p class="muted">Puertos UDP: <span class="kbd">67</span> (servidor), <span class="kbd">68</span> (cliente).</p>
+          </div>
+        </details>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+          <span class="chip danger">⚔️ Starvation / Rogue DHCP</span>
+          <span class="chip safe">🛡️ DHCP Snooping · Reservas</span>
+        </div>
+      </div>
+
+      <!-- DNS -->
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h3>DNS · Nombre corto interno</h3></div>
+        <p>Queremos que al escribir <span class="kbd">http://miportal</span> el navegador abra la laptop <span class="kbd">192.168.1.5</span>.</p>
+        <pre><code>ip host miportal 192.168.1.5</code></pre>
+        <details style="margin-top:10px">
+          <summary>Ver flujo DNS</summary>
+          <div class="svg-wrap" style="margin-top:10px">
+            <svg viewBox="0 0 520 140" width="100%" height="auto">
+              <rect x="30" y="20" width="140" height="40" rx="10" fill="#1a2250" stroke="#6de1ff"/>
+              <text x="100" y="45" text-anchor="middle" fill="#e8edf7">Usuario</text>
+              <rect x="350" y="20" width="140" height="40" rx="10" fill="#1a2250" stroke="#7c5cff"/>
+              <text x="420" y="45" text-anchor="middle" fill="#e8edf7">Servidor DNS</text>
+              <path d="M170 40 H 350" stroke="#6de1ff" stroke-width="2" marker-end="url(#arr2)"/>
+              <text x="260" y="30" text-anchor="middle" fill="#97a3b3" font-size="12">¿miportal?</text>
+              <path d="M350 80 H 170" stroke="#7c5cff" stroke-width="2" marker-end="url(#arr2)"/>
+              <text x="260" y="95" text-anchor="middle" fill="#97a3b3" font-size="12">192.168.1.5</text>
+              <defs>
+                <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c5cff"/>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+        </details>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+          <span class="chip danger">⚔️ Spoofing / Poisoning / Tunneling</span>
+          <span class="chip safe">🛡️ DNSSEC · Filtrado · Monitorización</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- NAT / PAT -->
+    <section class="grid cards" style="margin-top:18px">
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h3>NAT · Traducción privada ↔ pública</h3></div>
+        <p>Empresa con 3 PCs (<span class="kbd">192.168.1.2</span>, <span class="kbd">.3</span>, <span class="kbd">.4</span>) y una sola IP pública <span class="kbd">203.0.113.1</span>.</p>
+        <pre><code>ip nat inside source list 1 interface FastEthernet0/0 overload
+access-list 1 permit 192.168.1.0 0.0.0.255</code></pre>
+        <div class="svg-wrap" style="margin-top:10px">
+          <svg viewBox="0 0 520 160" width="100%" height="auto">
+            <rect x="20" y="20" width="150" height="110" rx="12" fill="#1a2250" stroke="#6de1ff"/>
+            <text x="95" y="42" text-anchor="middle" fill="#e8edf7">LAN 192.168.1.0/24</text>
+            <text x="95" y="64" text-anchor="middle" fill="#97a3b3" font-size="12">PC1 .2 · PC2 .3 · PC3 .4</text>
+            <rect x="210" y="50" width="110" height="60" rx="12" fill="#121735" stroke="#7c5cff"/>
+            <text x="265" y="84" text-anchor="middle" fill="#e8edf7">Router NAT</text>
+            <rect x="360" y="20" width="140" height="110" rx="12" fill="#1a2250" stroke="#7c5cff"/>
+            <text x="430" y="42" text-anchor="middle" fill="#e8edf7">Internet</text>
+            <text x="430" y="64" text-anchor="middle" fill="#97a3b3" font-size="12">IP pública 203.0.113.1</text>
+            <path d="M170 75 H 210" stroke="#6de1ff" stroke-width="2" marker-end="url(#arr3)"/>
+            <path d="M320 80 H 360" stroke="#7c5cff" stroke-width="2" marker-end="url(#arr3)"/>
+            <defs>
+              <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#6de1ff"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+        <p class="subtitle">Tipos: Static 1:1 · Dynamic rango↔rango · Overload (PAT).</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+          <span class="chip danger">⚔️ NAT Traversal / IP Spoofing</span>
+          <span class="chip safe">🛡️ NGFW · ACLs · Segmentación</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h3>PAT · Una IP pública, muchos puertos</h3></div>
+        <p>Mapa de puertos de salida únicos por dispositivo:</p>
+        <ul>
+          <li>PC1 <span class="kbd">192.168.1.2</span> → <span class="kbd">203.0.113.1:10001</span></li>
+          <li>PC2 <span class="kbd">192.168.1.3</span> → <span class="kbd">203.0.113.1:10002</span></li>
+          <li>PC3 <span class="kbd">192.168.1.4</span> → <span class="kbd">203.0.113.1:10003</span></li>
+        </ul>
+        <div class="svg-wrap" style="margin-top:10px">
+          <svg viewBox="0 0 520 170" width="100%" height="auto">
+            <text x="40" y="30" fill="#cbd5e1" font-size="12">Interno</text>
+            <text x="220" y="30" fill="#cbd5e1" font-size="12">NAT/PAT Router</text>
+            <text x="420" y="30" fill="#cbd5e1" font-size="12">Internet</text>
+            <text x="20" y="60" fill="#e8edf7" font-family="monospace">192.168.1.2:1025  ──▶</text>
+            <text x="200" y="60" fill="#e8edf7" font-family="monospace">203.0.113.1:10001 ──▶</text>
+            <text x="380" y="60" fill="#e8edf7" font-family="monospace">Servidor web</text>
+            <text x="20" y="95" fill="#e8edf7" font-family="monospace">192.168.1.3:1040  ──▶</text>
+            <text x="200" y="95" fill="#e8edf7" font-family="monospace">203.0.113.1:10002 ──▶</text>
+            <text x="380" y="95" fill="#e8edf7" font-family="monospace">Juego online</text>
+            <text x="20" y="130" fill="#e8edf7" font-family="monospace">192.168.1.4:1100  ──▶</text>
+            <text x="200" y="130" fill="#e8edf7" font-family="monospace">203.0.113.1:10003 ──▶</text>
+            <text x="380" y="130" fill="#e8edf7" font-family="monospace">Streaming</text>
+          </svg>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+          <span class="chip danger">⚔️ Port Scanning / Session Hijacking</span>
+          <span class="chip safe">🛡️ IDS/IPS · Logs · VPN/IPsec</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resumen comparativo -->
+    <section id="tabla" class="card" style="margin-top:18px">
+      <div class="section-title"><span class="dot"></span><h3>Resumen comparativo</h3></div>
+      <div class="glow"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Servicio</th><th>Función</th><th>Puertos</th><th>Ataques</th><th>Defensas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>DHCP</strong></td>
+            <td>Asignar IPs dinámicas</td>
+            <td>UDP 67/68</td>
+            <td>Starvation, Rogue DHCP</td>
+            <td>DHCP Snooping, Reservas</td>
+          </tr>
+          <tr>
+            <td><strong>DNS</strong></td>
+            <td>Traducir nombre ↔ IP</td>
+            <td>UDP/TCP 53</td>
+            <td>Spoofing, Poisoning, Tunneling</td>
+            <td>DNSSEC, Filtrado, Monitorización</td>
+          </tr>
+          <tr>
+            <td><strong>NAT</strong></td>
+            <td>Privadas ↔ Pública</td>
+            <td>—</td>
+            <td>NAT Traversal, IP Spoofing</td>
+            <td>NGFW, ACLs, Segmentación</td>
+          </tr>
+          <tr>
+            <td><strong>PAT</strong></td>
+            <td>NAT + Puertos</td>
+            <td>—</td>
+            <td>Scanning, Hijacking</td>
+            <td>IDS/IPS, Logs, VPN/IPsec</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid cards" style="margin-top:18px">
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h3>Checklist de buenas prácticas</h3></div>
+        <ul>
+          <li>Limita el <strong>pool DHCP</strong> y usa <strong>reservas</strong> para dispositivos críticos.</li>
+          <li>Activa <strong>DHCP Snooping</strong> y bloquea puertos no confiables.</li>
+          <li>Implementa <strong>DNSSEC</strong> y registra/monitoriza consultas sospechosas.</li>
+          <li>Usa <strong>NGFW</strong> con inspección y <strong>IDS/IPS</strong> para NAT/PAT.</li>
+          <li>Segmenta por <strong>VLAN</strong>: usuarios / servidores / IoT / gestión.</li>
+          <li>Protege salidas con <strong>ACLs</strong> y <strong>políticas de mínimo privilegio</strong>.</li>
+          <li>Para sedes remotas: <strong>VPN + (opcional) GRE</strong> si necesitas routing dinámico.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="section-title"><span class="dot"></span><h3>Notas rápidas para examen</h3></div>
+        <ul>
+          <li><span class="kbd">DORA</span> = Discover · Offer · Request · Acknowledge.</li>
+          <li><strong>DNS</strong> usa UDP/53 y TCP/53 (zonas).</li>
+          <li><strong>NAT</strong> opera en Capa 3 (traduce direcciones IP).</li>
+          <li><strong>PAT</strong> mapea IP:PUERTO ↔ IP interna:PUERTO.</li>
+          <li>NAT ≠ seguridad: añade <strong>firewall, IDS/IPS</strong>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer style="opacity:.8; margin:28px 0; text-align:center; color:var(--muted)">
+      <small>sualba.dev Elaborado con ❤️ para aprendizaje rápido y repaso profesional.</small>
+    </footer>
+  </main>
+
+  <script>
+    function scrollToId(id){
+      const el = document.getElementById(id); if(!el) return; el.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+    function toggleAll(open=true){
+      document.querySelectorAll('details').forEach(d => d.open = open);
+    }
+  </script>
+</body>
+</html>
