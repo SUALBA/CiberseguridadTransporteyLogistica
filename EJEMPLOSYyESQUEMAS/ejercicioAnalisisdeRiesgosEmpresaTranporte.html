@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Riesgos Cibernéticos - Transporte Público</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .author {
+            margin-top: 20px;
+            font-size: 0.95em;
+            color: #667eea;
+            position: relative;
+            z-index: 1;
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid transparent;
+        }
+
+        nav a:hover {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        section:hover {
+            border-color: rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin: 30px 0 15px;
+            color: #8b92ea;
+            padding-left: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .asset-card, .threat-card, .mitigation-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .asset-card:hover, .threat-card:hover, .mitigation-card:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .tag-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .tag {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .tag-critical { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
+        .tag-high { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid #f59e0b; }
+        .tag-medium { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
+        .tag-low { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid #22c55e; }
+
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .risk-item {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .risk-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .icon {
+            font-size: 2em;
+            margin-right: 10px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+
+        li {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .highlight {
+            background: rgba(102, 126, 234, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #a5b4fc;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .conclusion-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #667eea;
+            margin: 30px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a0a0a0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.6em; }
+            section { padding: 25px; }
+            nav ul { flex-direction: column; }
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="container">
+        <header>
+            <div class="header-bg"></div>
+            <h1>🛡️ Análisis de Riesgos Cibernéticos</h1>
+            <p class="subtitle">Empresa de Transporte Público</p>
+            <p class="author">Trabajo realizado por Susana Alba | sualba.dev | Octubre 2025</p>
+            <p class="subtitle" style="margin-top: 10px;">Ciberseguridad en Logística y Transporte </p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#introduccion">📋 Introducción</a></li>
+                <li><a href="#activos">🎯 Activos</a></li>
+                <li><a href="#amenazas">⚠️ Amenazas</a></li>
+                <li><a href="#evaluacion">📊 Evaluación</a></li>
+                <li><a href="#mitigacion">🔒 Mitigación</a></li>
+                <li><a href="#conclusiones">✅ Conclusiones</a></li>
+            </ul>
+        </nav>
+
+        <section id="introduccion">
+            <h2><span class="icon">📋</span>Introducción</h2>
+            <p>La empresa de transporte público de la ciudad gestiona una red de <strong>autobuses y trenes</strong> cuyas operaciones dependen de dos activos críticos que han sido objeto de intentos de ciberataques recientes:</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">🚦</span>
+                    <span class="stat-label">Sistema de Control de Tráfico</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">💳</span>
+                    <span class="stat-label">Sistema de Pagos Electrónicos</span>
+                </div>
+            </div>
+
+            <p>Esta situación evidencia la <span class="highlight">necesidad urgente</span> de un análisis de riesgos formal para proteger la infraestructura crítica y garantizar la continuidad operativa.</p>
+        </section>
+
+        <section id="activos">
+            <h2><span class="icon">🎯</span>Identificación de Activos Críticos</h2>
+            
+            <div class="asset-card">
+                <h3>🚦 Sistema de Control de Tráfico</h3>
+                
+                <p><strong>Descripción:</strong> Plataforma integrada que incluye SCADA, servidores de gestión de flotas, semáforos inteligentes, señalización ferroviaria y comunicaciones en tiempo real.</p>
+                
+                <p><strong>Función Principal:</strong></p>
+                <p>Garantizar la fluidez, seguridad y eficiencia en la movilidad urbana mediante regulación automatizada y coordinación de infraestructuras.</p>
+                
+                <p><strong>Interconexiones:</strong></p>
+                <ul>
+                    <li>Sensores IoT en vía pública</li>
+                    <li>Sistemas de videovigilancia (CCTV)</li>
+                    <li>Redes externas con autoridades de movilidad y emergencias</li>
+                </ul>
+
+                <p><strong>Consecuencias de Interrupción:</strong></p>
+                <ul>
+                    <li>⚠️ Accidentes y colisiones por desincronización</li>
+                    <li>🚨 Colapso en movilidad urbana</li>
+                    <li>📉 Daño reputacional severo</li>
+                    <li>⚖️ Consecuencias legales y económicas</li>
+                </ul>
+
+                <div class="tag-container">
+                    <span class="tag tag-medium">Confidencialidad: MEDIA</span>
+                    <span class="tag tag-critical">Integridad: ALTA</span>
+                    <span class="tag tag-critical">Disponibilidad: CRÍTICA</span>
+                </div>
+            </div>
+
+            <div class="asset-card">
+                <h3>💳 Sistema de Pagos Electrónicos</h3>
+                
+                <p><strong>Descripción:</strong> Plataforma digital que gestiona cobros mediante tarjetas bancarias, apps móviles, NFC, abonos electrónicos y recargas en línea.</p>
+                
+                <p><strong>Función Principal:</strong></p>
+                <p>Procesar transacciones de forma segura, rápida y confiable, garantizando la recaudación y experiencia del usuario.</p>
+                
+                <p><strong>Interconexiones:</strong></p>
+                <ul>
+                    <li>Entidades financieras y pasarelas de pago</li>
+                    <li>Apps móviles y sistemas de validación</li>
+                    <li>Base de datos de clientes con información sensible</li>
+                </ul>
+
+                <p><strong>Riesgos de Compromiso:</strong></p>
+                <ul>
+                    <li>💰 Pérdida financiera directa</li>
+                    <li>🔓 Robo de datos sensibles (tarjetas, cuentas, IDs)</li>
+                    <li>📉 Daño reputacional y pérdida de confianza</li>
+                    <li>⚖️ Sanciones RGPD y PCI-DSS</li>
+                </ul>
+
+                <div class="tag-container">
+                    <span class="tag tag-critical">Confidencialidad: CRÍTICA</span>
+                    <span class="tag tag-critical">Integridad: ALTA</span>
+                    <span class="tag tag-critical">Disponibilidad: ALTA</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="amenazas">
+            <h2><span class="icon">⚠️</span>Identificación de Amenazas</h2>
+
+            <div class="threat-card">
+                <h3>🦠 Malware / Ransomware</h3>
+                <p>Software malicioso que cifra o bloquea sistemas críticos exigiendo rescate económico.</p>
+                <p><strong>Objetivos:</strong> Sistemas SCADA y servidores de pagos</p>
+                <p><strong>Impacto:</strong> Paralización completa, riesgo de accidentes, pérdidas financieras masivas</p>
+            </div>
+
+            <div class="threat-card">
+                <h3>🌊 Ataques DDoS</h3>
+                <p>Inundación de sistemas con tráfico masivo para colapsar la disponibilidad.</p>
+                <p><strong>Objetivos:</strong> Servidores de control y pagos</p>
+                <p><strong>Impacto:</strong> Caída de plataformas, bloqueo de comunicaciones, caos operativo</p>
+            </div>
+
+            <div class="threat-card">
+                <h3>👤 Amenazas Internas</h3>
+                <p>Empleados o contratistas con acceso legítimo que actúan de forma maliciosa o negligente.</p>
+                <p><strong>Objetivos:</strong> Bases de datos, sistemas SCADA, credenciales administrativas</p>
+                <p><strong>Impacto:</strong> Robo/filtración de datos, alteración de parámetros críticos, pérdida de confianza</p>
+            </div>
+
+            <div class="threat-card">
+                <h3>🔧 Exploits en SCADA</h3>
+                <p>Aprovechamiento de vulnerabilidades en sistemas industriales sin actualizar.</p>
+                <p><strong>Objetivos:</strong> Señalización ferroviaria y semafórica</p>
+                <p><strong>Impacto:</strong> Accidentes ferroviarios/viales, alteración de servicios, costes elevados</p>
+            </div>
+
+            <div class="threat-card">
+                <h3>🎣 Phishing Dirigido (Spear Phishing)</h3>
+                <p>Ataques personalizados mediante correos fraudulentos para robar credenciales.</p>
+                <p><strong>Objetivos:</strong> Administradores de red y proveedores externos</p>
+                <p><strong>Impacto:</strong> Robo de credenciales, instalación encubierta de malware, compromiso de datos</p>
+            </div>
+        </section>
+
+        <section id="evaluacion">
+            <h2><span class="icon">📊</span>Evaluación de Impacto y Probabilidad</h2>
+
+            <p>La evaluación considera el <strong>impacto potencial</strong> y la <strong>probabilidad de ocurrencia</strong>, determinando el nivel de riesgo para priorizar medidas de mitigación.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Activo</th>
+                        <th>Amenaza</th>
+                        <th>Impacto</th>
+                        <th>Probabilidad</th>
+                        <th>Nivel de Riesgo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Control de Tráfico</td>
+                        <td>Ransomware SCADA</td>
+                        <td>Alto</td>
+                        <td>Media-Alta</td>
+                        <td><span class="tag tag-critical">CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>Control de Tráfico</td>
+                        <td>Ataque DDoS</td>
+                        <td>Alto</td>
+                        <td>Media</td>
+                        <td><span class="tag tag-high">ALTO</span></td>
+                    </tr>
+                    <tr>
+                        <td>Pagos Electrónicos</td>
+                        <td>Fraude/Robo de Datos</td>
+                        <td>Alto</td>
+                        <td>Alta</td>
+                        <td><span class="tag tag-critical">CRÍTICO</span></td>
+                    </tr>
+                    <tr>
+                        <td>Pagos Electrónicos</td>
+                        <td>Phishing/Credenciales</td>
+                        <td>Medio-Alto</td>
+                        <td>Alta</td>
+                        <td><span class="tag tag-high">ALTO</span></td>
+                    </tr>
+                    <tr>
+                        <td>Ambos Activos</td>
+                        <td>Amenaza Interna</td>
+                        <td>Medio</td>
+                        <td>Media</td>
+                        <td><span class="tag tag-medium">MODERADO-ALTO</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🔍 Análisis Detallado</h3>
+
+            <div class="risk-matrix">
+                <div class="risk-item">
+                    <h4>🔴 Ransomware SCADA - CRÍTICO</h4>
+                    <p>Riesgo más severo. Pérdida de disponibilidad podría causar accidentes y caos urbano. Requiere medidas inmediatas.</p>
+                </div>
+
+                <div class="risk-item">
+                    <h4>🔴 Fraude/Robo Datos - CRÍTICO</h4>
+                    <p>Impacto financiero directo, sanciones regulatorias y pérdida total de confianza. Controles estrictos necesarios.</p>
+                </div>
+
+                <div class="risk-item">
+                    <h4>🟠 Ataques DDoS - ALTO</h4>
+                    <p>Afectación grave en coordinación de flotas. Impacto operacional significativo requiere redundancia.</p>
+                </div>
+
+                <div class="risk-item">
+                    <h4>🟠 Phishing - ALTO</h4>
+                    <p>Alta probabilidad de ocurrencia. Requiere concienciación continua y controles técnicos (MFA).</p>
+                </div>
+
+                <div class="risk-item">
+                    <h4>🟡 Amenazas Internas - MODERADO-ALTO</h4>
+                    <p>Difícil de detectar. Necesita políticas sólidas de acceso y monitoreo continuo.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="mitigacion">
+            <h2><span class="icon">🔒</span>Medidas de Mitigación</h2>
+
+            <div class="mitigation-card">
+                <h3>⚙️ Medidas Técnicas</h3>
+                <p>Controles tecnológicos alineados con NIST, ISO/IEC 27001 y ENS:</p>
+                <ul>
+                    <li><strong>Firewalls NGF e IDS/IPS:</strong> Detección y bloqueo en tiempo real de accesos no autorizados</li>
+                    <li><strong>Segmentación de redes:</strong> Separación lógica entre sistemas críticos y redes corporativas</li>
+                    <li><strong>Cifrado avanzado:</strong> AES-256 y TLS 1.3 para datos en tránsito y reposo</li>
+                    <li><strong>MFA e IAM:</strong> Autenticación multifactor y gestión de identidades granular</li>
+                    <li><strong>Gestión de parches:</strong> Mantenimiento continuo eliminando vulnerabilidades conocidas</li>
+                </ul>
+            </div>
+
+            <div class="mitigation-card">
+                <h3>👥 Medidas Organizativas</h3>
+                <p>Fortalecimiento de cultura de seguridad y procedimientos:</p>
+                <ul>
+                    <li><strong>Formación continua:</strong> Campañas periódicas contra phishing e ingeniería social</li>
+                    <li><strong>CSIRT:</strong> Equipos y protocolos de respuesta ante incidentes</li>
+                    <li><strong>Principio de mínimo privilegio:</strong> Políticas RBAC para accesos controlados</li>
+                </ul>
+            </div>
+
+            <div class="mitigation-card">
+                <h3>🎯 Medidas Estratégicas</h3>
+                <p>Acciones de dirección y continuidad de negocio:</p>
+                <ul>
+                    <li><strong>Seguros cibernéticos:</strong> Cobertura ante pérdidas económicas y sanciones</li>
+                    <li><strong>Red Teaming y Pentesting:</strong> Evaluaciones periódicas de robustez</li>
+                    <li><strong>Plataforma SIEM:</strong> Centralización y correlación de eventos de seguridad</li>
+                    <li><strong>BCP y DRP:</strong> Planes de continuidad y recuperación ante desastres</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="conclusiones">
+            <h2><span class="icon">✅</span>Conclusiones y Recomendaciones</h2>
+
+            <div class="conclusion-box">
+                <h3>🎯 Prioridades Inmediatas</h3>
+                <ul>
+                    <li>El riesgo crítico se concentra en sistemas SCADA y pagos electrónicos</li>
+                    <li>Implementación urgente de segmentación de redes, parcheo y MFA</li>
+                    <li>Adopción de herramientas SIEM e IDS/IPS para detección temprana</li>
+                    <li>Planes de continuidad y respuesta probados regularmente</li>
+                    <li>Estrategia continua de concienciación del personal</li>
+                </ul>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 1.1em; text-align: center;">
+                <strong>Fortalecer la seguridad de estos activos críticos no solo protege la infraestructura, sino que garantiza la confianza de los usuarios y la sostenibilidad del servicio de transporte público.</strong>
+            </p>
+
+            <div class="stats-grid" style="margin-top: 40px;">
+                <div class="stat-card">
+                    <span class="stat-number">2</span>
+                    <span class="stat-label">Activos Críticos</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">5</span>
+                    <span class="stat-label">Amenazas Principales</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Niveles de Mitigación</span>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>📚 Trabajo de Análisis de Riesgos Cibernéticos</p>
+            <p>Conectividad IP y Gestión de Riesgos</p>
+            <p>Ciberseguridad en Logística y Transporte</p>
+            <p style="margin-top: 20px;">Elaborado por <strong style="color: #667eea;">Susana Alba (sualba.dev)</strong> | Octubre 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>
