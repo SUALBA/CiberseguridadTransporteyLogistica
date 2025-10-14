@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciberseguridad en el Transporte: Cómo Implementarla</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 50px;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #1e3c72;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            padding-left: 20px;
+            transition: all 0.3s ease;
+        }
+
+        h2:hover {
+            transform: translateX(10px);
+            color: #667eea;
+        }
+
+        h3 {
+            color: #2a5298;
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        h3::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul {
+            margin: 20px 0;
+            padding-left: 40px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        li::marker {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: glow 3s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            }
+            to {
+                box-shadow: 0 5px 30px rgba(255, 216, 155, 0.5);
+            }
+        }
+
+        .highlight h3 {
+            color: white;
+        }
+
+        .highlight h3::before {
+            color: #ffd89b;
+        }
+
+        .diagram-container {
+            text-align: center;
+            margin: 40px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 15px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagram-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .diagram-container img:hover {
+            transform: scale(1.05);
+        }
+
+        .diagram-caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .info-box:hover {
+            background: #bbdefb;
+            transform: translateX(5px);
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .warning-box:hover {
+            background: #ffe0b2;
+            transform: translateX(5px);
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .success-box:hover {
+            background: #c8e6c9;
+            transform: translateX(5px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .grid-item {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .grid-item:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .grid-item h4 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .grid-item:hover h4 {
+            color: white;
+        }
+
+        .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            background: #1e3c72;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.6em;
+            }
+
+            h3 {
+                font-size: 1.3em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+            transition: width 0.1s;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-indicator" id="scrollIndicator"></div>
+    
+    <div class="container">
+        <header>
+            <h1>🔐 Ciberseguridad en el Transporte</h1>
+            <p class="subtitle">Cómo Implementarla para Proteger la Infraestructura Crítica</p>
+        </header>
+
+        <div class="content">
+            <section id="introduccion">
+                <h2>Introducción</h2>
+                <p>La <strong>ciberseguridad en el transporte</strong> es un campo de vital importancia en la era digital. La creciente interconexión de sistemas en sectores como la aviación, el ferrocarril, el transporte marítimo y la automoción, si bien optimiza la eficiencia y la seguridad, también introduce nuevas vulnerabilidades. Un ciberataque en este ámbito puede tener consecuencias devastadoras, desde interrupciones económicas hasta accidentes con pérdidas humanas.</p>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Alerta:</strong> El sector de la movilidad no es inmune a las amenazas y riesgos: los ataques ocurren a diario y pueden tener un impacto devastador en la economía del país, limitando los viajes y las operaciones. En los casos más graves, corren el riesgo de provocar accidentes.
+                </div>
+
+                <p>Este artículo explora los desafíos, las implementaciones clave y las regulaciones que rigen la ciberseguridad en el sector del transporte, ofreciendo una guía didáctica para profesionales y entusiastas.</p>
+            </section>
+
+            <section id="importancia">
+                <h2>¿Por qué la Ciberseguridad es Crítica en el Transporte?</h2>
+                
+                <div class="diagram-container">
+                    <img src="estructura_ciberseguridad_transporte.png" alt="Estructura de Ciberseguridad en el Transporte">
+                    <p class="diagram-caption">Figura 1: Estructura general de la ciberseguridad en el transporte.</p>
+                </div>
+
+                <p>La industria del transporte depende cada vez más de las redes y los sistemas de información para mejorar la eficiencia, la seguridad y la comodidad. Sin embargo, esta creciente dependencia de la tecnología también expone al sector del transporte a nuevos riesgos de ciberataques y amenazas a la seguridad.</p>
+
+                <div class="card">
+                    <h3>Consecuencias de un Ciberataque</h3>
+                    <p>Los sistemas de transporte interconectados, como vehículos conectados, trenes automatizados y aeronaves con sistemas de control de vuelo digitales, pueden ser potencialmente vulnerables a intrusiones y ataques cibernéticos. Las consecuencias pueden ser graves:</p>
+                    <ul>
+                        <li><strong>Aviación:</strong> Un ataque a los sistemas de control de vuelo podría comprometer la seguridad de pasajeros y tripulación.</li>
+                        <li><strong>Transporte Vial:</strong> Un ataque a los sistemas de control del tráfico podría causar accidentes o congestión masiva.</li>
+                        <li><strong>Ferrocarriles:</strong> La manipulación de sistemas de control de trenes podría poner en peligro la seguridad de los pasajeros y el personal.</li>
+                    </ul>
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ Conclusión:</strong> Garantizar la ciberseguridad en los sistemas de transporte es primordial para la seguridad pública y la estabilidad económica.
+                </div>
+            </section>
+
+            <section id="sectores">
+                <h2>Ciberseguridad por Sector de Transporte</h2>
+
+                <h3>🚆 Ciberseguridad en los Ferrocarriles</h3>
+                
+                <p>Los ferrocarriles modernos utilizan cada vez más tecnologías digitales y sistemas de automatización para mejorar la eficiencia, la seguridad y la fiabilidad de las operaciones. Sin embargo, este aumento en la conectividad y la complejidad del sistema expone a los ferrocarriles a nuevos riesgos de ciberataques y amenazas a la seguridad.</p>
+
+                <div class="diagram-container">
+                    <img src="ciberseguridad_ferrocarriles_debug.png" alt="Puntos Clave de Ciberseguridad en Ferrocarriles">
+                    <p class="diagram-caption">Figura 2: Puntos clave de ciberseguridad en los ferrocarriles.</p>
+                </div>
+
+                <div class="grid">
+                    <div class="grid-item">
+                        <div class="icon">🔒</div>
+                        <h4>Protección de Sistemas de Control</h4>
+                        <p>Los Sistemas de Control de Trenes (SCT) gestionan el movimiento y la velocidad. Es crucial protegerlos con autenticación robusta, criptografía y seguridad física.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">🌐</div>
+                        <h4>Protección de Redes y Comunicaciones</h4>
+                        <p>Las infraestructuras de comunicación deben ser seguras mediante cifrado y protocolos seguros para evitar escuchas y ataques.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">📊</div>
+                        <h4>Seguridad y Privacidad de Datos</h4>
+                        <p>Proteger datos confidenciales de pasajeros y operaciones mediante control de acceso, cifrado y protección física.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">🔍</div>
+                        <h4>Detección de Amenazas</h4>
+                        <p>Implementar sistemas de monitoreo constante para detectar intrusiones y responder rápidamente.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">👥</div>
+                        <h4>Formación y Sensibilización</h4>
+                        <p>Capacitar al personal en mejores prácticas de ciberseguridad y gestión de contraseñas.</p>
+                    </div>
+                </div>
+
+                <h3>✈️ Ciberseguridad y Transporte Aéreo</h3>
+                
+                <p>La aviación ha evolucionado significativamente gracias a los avances en digitalización y conectividad, que han llevado a una mayor eficiencia operativa y una mejor experiencia de viaje para los pasajeros. Sin embargo, junto con estos desarrollos positivos, también ha surgido una nueva amenaza: la variable cibernética.</p>
+
+                <div class="diagram-container">
+                    <img src="ciberseguridad_aerea_simple.png" alt="Ciberseguridad en Transporte Aéreo">
+                    <p class="diagram-caption">Figura 3: Implementación de ciberseguridad en el transporte aéreo.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Sistemas Vulnerables en la Aviación</h3>
+                    <p>Los sistemas informáticos utilizados en la aviación se han convertido en objetivos de posibles ataques:</p>
+                    <ul>
+                        <li><strong>Control del Tráfico Aéreo:</strong> Un ataque podría interrumpir vuelos y provocar caos en los cielos.</li>
+                        <li><strong>Gestión de Líneas Aéreas:</strong> Compromiso de datos de pasajeros, incluyendo detalles de vuelo e información personal.</li>
+                        <li><strong>Sistemas de Navegación:</strong> Afectación de la seguridad operacional al interferir con las comunicaciones entre pilotos y controladores.</li>
+                    </ul>
+                </div>
+
+                <div class="highlight">
+                    <h3>Medidas de Mitigación</h3>
+                    <p>Para mitigar estos riesgos, el sector debe adoptar medidas sólidas:</p>
+                    <ul>
+                        <li><strong>Implementación de Defensas:</strong> Firewalls, encriptación de datos, autenticación de dos factores y monitoreo constante.</li>
+                        <li><strong>Capacitación del Personal:</strong> Formación para reconocer y responder a ciberataques.</li>
+                        <li><strong>Colaboración:</strong> Cooperación con organismos gubernamentales, fuerzas del orden y expertos en ciberseguridad para compartir información y mejores prácticas.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="desafios">
+                <h2>Desafíos para los Profesionales de la Ciberseguridad</h2>
+                
+                <p>Los especialistas en ciberseguridad en el sector del transporte se enfrentan a retos específicos que requieren soluciones innovadoras y una vigilancia constante:</p>
+
+                <div class="grid">
+                    <div class="grid-item">
+                        <div class="icon">🔐</div>
+                        <h4>Protección de Datos Confidenciales</h4>
+                        <p>Salvaguardar información personal y de pago de pasajeros contra accesos no autorizados.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">📡</div>
+                        <h4>Seguridad de Comunicaciones</h4>
+                        <p>Asegurar redes inalámbricas críticas contra escuchas y ataques de denegación de servicio.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">⚙️</div>
+                        <h4>Protección de Sistemas de Control</h4>
+                        <p>Blindar sistemas de control de vehículos con autenticación robusta y criptografía.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">🎯</div>
+                        <h4>Detección de Amenazas</h4>
+                        <p>Desarrollar herramientas avanzadas para identificar y responder rápidamente a ciberataques.</p>
+                    </div>
+                    <div class="grid-item">
+                        <div class="icon">📚</div>
+                        <h4>Educación y Conciencia</h4>
+                        <p>Formar al personal para prevenir errores humanos y comportamientos negligentes.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="regulaciones">
+                <h2>Regulaciones y Directrices Clave</h2>
+                
+                <p>La colaboración entre reguladores, empresas de transporte y expertos en ciberseguridad ha dado lugar a normativas y directrices específicas para fortalecer la seguridad en el transporte:</p>
+
+                <div class="info-box">
+                    <h4>📋 Normas ISO/SAE 21434</h4>
+                    <p>Define los principios y procesos para la ingeniería de seguridad de vehículos. Brinda orientación para identificar y abordar los riesgos de ciberseguridad en la industria automotriz.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>📋 Publicaciones Especiales del NIST 800-82</h4>
+                    <p>Guías del Instituto Nacional de Estándares y Tecnología (NIST) de EE. UU. para la seguridad de infraestructuras críticas, incluyendo sistemas de transporte. Abarca gestión de riesgos, protección de redes y gestión de incidentes.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>📋 Directiva NIS (Seguridad de Redes y Sistemas de Información)</h4>
+                    <p>Directiva de la Unión Europea para mejorar la seguridad en sectores críticos como el transporte. Exige a los Estados miembros identificar operadores de servicios esenciales y tomar medidas preventivas.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>📋 Mejores Prácticas de Ciberseguridad Automotriz (Auto-ISAC)</h4>
+                    <p>Conjunto de mejores prácticas para la seguridad de la información en el sector de la automoción. Proporciona recomendaciones para identificar y gestionar riesgos en vehículos conectados.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>📋 Orientación sobre Ciberseguridad de la OACI</h4>
+                    <p>Directrices específicas de la Organización de Aviación Civil Internacional para la ciberseguridad en la aviación. Abordan amenazas a sistemas de control de tráfico aéreo, comunicaciones e infraestructura aeroportuaria.</p>
+                </div>
+
+                <div class="success-box">
+                    <strong>Nota:</strong> Cada país puede tener sus propias leyes y regulaciones específicas para la ciberseguridad en el transporte, según las necesidades y circunstancias locales.
+                </div>
+            </section>
+
+            <section id="amenazas">
+                <h2>Amenazas Comunes y Plan de Recuperación</h2>
+                
+                <div class="highlight">
+                    <h3>🚨 Ataques Más Temidos</h3>
+                    <p>Los profesionales de la ciberseguridad en el transporte deben estar preparados para enfrentar las siguientes amenazas:</p>
+                    <ul>
+                        <li><strong>Ransomware:</strong> Secuestro de sistemas críticos mediante cifrado de datos, exigiendo rescate para su liberación.</li>
+                        <li><strong>DDoS (Denegación de Servicio Distribuido):</strong> Sobrecarga de sistemas para interrumpir servicios esenciales.</li>
+                        <li><strong>Phishing:</strong> Engaño a usuarios para obtener credenciales o información sensible.</li>
+                        <li><strong>Ingeniería Social:</strong> Manipulación psicológica para obtener acceso no autorizado a sistemas.</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Plan de Recuperación ante Desastres</h3>
+                    <p>Es indispensable que las organizaciones cuenten con un <strong>plan de recuperación ante desastres</strong> que les permita mantener la continuidad operativa. Este plan debe incluir:</p>
+                    <ul>
+                        <li>Procedimientos de respuesta a incidentes claramente definidos.</li>
+                        <li>Copias de seguridad regulares y verificadas de datos críticos.</li>
+                        <li>Sistemas de redundancia para servicios esenciales.</li>
+                        <li>Protocolos de comunicación de emergencia.</li>
+                        <li>Ejercicios de simulación periódicos para probar la efectividad del plan.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="conclusion">
+                <h2>Conclusión</h2>
+                
+                <p>La ciberseguridad en el transporte no es solo una cuestión tecnológica, sino una prioridad estratégica que involucra a personas, procesos y regulaciones. La implementación de medidas robustas, la formación continua y la colaboración intersectorial son fundamentales para proteger la infraestructura crítica y garantizar un futuro de movilidad seguro y confiable.</p>
+
+                <div class="success-box">
+                    <strong>✓ Recuerda:</strong> La seguridad es un proceso continuo, no un estado final. Mantente actualizado, capacita a tu equipo y colabora con la comunidad de ciberseguridad para enfrentar las amenazas emergentes.
+                </div>
+
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="#introduccion" class="btn">Volver al Inicio</a>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+    
+            <p>Documento elaborado con fines didácticos para la comunidad de ciberseguridad.</p>
+            <p>&copy; sualba.dev @2025 - Ciberseguridad en el Transporte</p>
+        </footer>
+    </div>
+
+    <script>
+        // Scroll indicator
+        window.addEventListener('scroll', function() {
+            var scrollIndicator = document.getElementById('scrollIndicator');
+            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            var scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            var scrollPercentage = (scrollTop / scrollHeight) * 100;
+            scrollIndicator.style.width = scrollPercentage + '%';
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation class when elements come into view
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

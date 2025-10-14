@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Conceptos de Ciberseguridad: DHCP, DNS, NAT y PAT</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+      line-height: 1.7;
+      background: #f4f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: #1a2b4c;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    main {
+      padding: 2rem 10%;
+    }
+    h2 {
+      color: #1a2b4c;
+      border-bottom: 3px solid #4cafef;
+      padding-bottom: 0.3rem;
+    }
+    h3 {
+      color: #4cafef;
+    }
+    p {
+      margin-bottom: 1rem;
+    }
+    .code-block {
+      background: #2d2d2d;
+      color: #eee;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: "Courier New", monospace;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.8rem;
+      text-align: center;
+    }
+    th {
+      background: #4cafef;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .highlight {
+      background: #e8f5ff;
+      padding: 0.5rem;
+      border-left: 4px solid #4cafef;
+      margin: 1rem 0;
+    }
+    footer {
+      background: #1a2b4c;
+      color: #ddd;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+    .ascii-box {
+      background: #fff;
+      border: 1px dashed #aaa;
+      padding: 1rem;
+      font-family: monospace;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tesis de Ciberseguridad</h1>
+    <p><strong>DHCP, DNS, NAT y PAT en Redes Modernas</strong></p>
+  </header>
+  <main>
+    
+    <h2>Introducción</h2>
+    <p>
+      En el ámbito de la ciberseguridad, el conocimiento de protocolos y servicios 
+      como <strong>DHCP, DNS, NAT y PAT</strong> es esencial. Estos mecanismos 
+      constituyen la base de las comunicaciones modernas en redes domésticas y empresariales. 
+      Sin embargo, no solo garantizan la conectividad: una configuración inadecuada 
+      puede abrir vulnerabilidades críticas explotables por atacantes.
+    </p>
+    <div class="highlight">
+      <strong>Objetivo:</strong> analizar cómo funcionan DHCP, DNS, NAT y PAT, 
+      mostrar configuraciones reales en routers Cisco y destacar sus implicaciones en ciberseguridad.
+    </div>
+    
+    <h2>1. DHCP (Dynamic Host Configuration Protocol)</h2>
+    <h3>Concepto</h3>
+    <p>
+      DHCP automatiza la asignación de direcciones IP, máscaras, puertas de enlace y DNS. 
+      Facilita la administración en redes grandes, evitando configuraciones manuales.
+    </p>
+    
+    <h3>Funcionamiento</h3>
+    <ol>
+      <li><strong>Discover:</strong> el cliente busca un servidor DHCP.</li>
+      <li><strong>Offer:</strong> el servidor ofrece una dirección IP.</li>
+      <li><strong>Request:</strong> el cliente solicita la IP ofrecida.</li>
+      <li><strong>Ack:</strong> el servidor confirma la asignación.</li>
+    </ol>
+    
+    <h3>Ejemplo práctico</h3>
+    <p>En una red doméstica, un router asigna:</p>
+    <ul>
+      <li>Laptop → 192.168.1.101</li>
+      <li>Smartphone → 192.168.1.102</li>
+      <li>Consola → 192.168.1.103</li>
+    </ul>
+    
+    <div class="code-block">
+      ip dhcp pool RED_LOCAL<br>
+      network 192.168.1.0 255.255.255.0<br>
+      default-router 192.168.1.1<br>
+      dns-server 8.8.8.8<br>
+      lease 7
+    </div>
+    
+    <h3>Riesgos de seguridad</h3>
+    <ul>
+      <li><strong>DHCP Spoofing:</strong> un atacante actúa como servidor falso.</li>
+      <li><strong>IP Starvation:</strong> ataques que agotan las direcciones IP disponibles.</li>
+    </ul>
+    
+    <h2>2. DNS (Domain Name System)</h2>
+    <h3>Concepto</h3>
+    <p>
+      DNS traduce nombres de dominio en direcciones IP. En redes internas también 
+      permite resolver nombres locales como <em>miportal</em> → 192.168.1.5.
+    </p>
+    
+    <h3>Configuración en Cisco</h3>
+    <div class="code-block">
+      ip dns server<br>
+      ip host miportal 192.168.1.5
+    </div>
+    
+    <h3>Riesgos</h3>
+    <ul>
+      <li><strong>DNS Spoofing:</strong> respuestas falsas que redirigen tráfico.</li>
+      <li><strong>DNS Tunneling:</strong> uso de DNS para exfiltrar datos.</li>
+      <li><strong>DDoS por amplificación:</strong uso malicioso de servidores abiertos.</li>
+    </ul>
+    
+    <h2>3. NAT (Network Address Translation)</h2>
+    <h3>Concepto</h3>
+    <p>
+      NAT permite que múltiples equipos con IP privadas accedan a Internet usando 
+      una sola IP pública.
+    </p>
+    
+    <h3>Escenario</h3>
+    <div class="ascii-box">
+PC1 (192.168.1.2) ─┐<br>
+PC2 (192.168.1.3) ─┼──> Router → Internet<br>
+PC3 (192.168.1.4) ─┘          |<br>
+                               └─> 203.0.113.1
+    </div>
+    
+    <div class="code-block">
+      interface GigabitEthernet0/0<br>
+       ip address 192.168.1.1 255.255.255.0<br>
+       ip nat inside<br>
+      !<br>
+      interface GigabitEthernet0/1<br>
+       ip address 203.0.113.1 255.255.255.0<br>
+       ip nat outside<br><br>
+      access-list 1 permit 192.168.1.0 0.0.0.255<br>
+      ip nat inside source list 1 interface GigabitEthernet0/1 overload
+    </div>
+    
+    <h2>4. PAT (Port Address Translation)</h2>
+    <h3>Concepto</h3>
+    <p>
+      PAT (NAT con sobrecarga) permite que varios dispositivos compartan la misma 
+      IP pública diferenciándose por los puertos.
+    </p>
+    
+    <h3>Tabla de traducciones</h3>
+    <table>
+      <tr>
+        <th>Dispositivo</th>
+        <th>IP Privada:Puerto</th>
+        <th>IP Pública:Puerto</th>
+      </tr>
+      <tr>
+        <td>PC1</td>
+        <td>192.168.1.2:5001</td>
+        <td>203.0.113.1:30001</td>
+      </tr>
+      <tr>
+        <td>PC2</td>
+        <td>192.168.1.3:5002</td>
+        <td>203.0.113.1:30002</td>
+      </tr>
+      <tr>
+        <td>PC3</td>
+        <td>192.168.1.4:5003</td>
+        <td>203.0.113.1:30003</td>
+      </tr>
+    </table>
+    
+    <div class="code-block">
+      show ip nat translations
+    </div>
+    
+    <h2>Conclusiones</h2>
+    <p>
+      - <strong>DHCP</strong> facilita la gestión de IPs, pero debe protegerse contra spoofing.<br>
+      - <strong>DNS</strong> es esencial para la comunicación, pero es una vía común de ataques.<br>
+      - <strong>NAT</strong> optimiza el uso de direcciones IPv4, aunque no es una medida de seguridad en sí misma.<br>
+      - <strong>PAT</strong> permite compartir una IP pública entre múltiples equipos, pero añade complejidad al análisis de tráfico.<br><br>
+      En conjunto, estos mecanismos son piezas fundamentales de la arquitectura de red y deben entenderse tanto desde su función operativa como desde su impacto en la seguridad.
+    </p>
+  </main>
+  <footer>
+    <p> Conceptos de Ciberseguridad Autor: [sualba.dev] - 2025</p>
+  </footer>
+</body>
+</html>

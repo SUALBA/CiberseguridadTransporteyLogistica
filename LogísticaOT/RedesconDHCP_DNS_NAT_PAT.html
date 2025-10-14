@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHCP, DNS, NAT y PAT en Redes | Blog de Ciberseguridad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section h3 {
+            color: #2a5298;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+            padding-left: 15px;
+            border-left: 3px solid #667eea;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'Cisco IOS';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .flow-diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .flow-step:hover {
+            transform: translateX(10px);
+        }
+
+        .flow-step .step-number {
+            background: white;
+            color: #667eea;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .example-box {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+
+        .security-alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .security-alert.danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .security-alert.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .security-alert strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .network-diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+
+        .device {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .arrow {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .conclusion {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+
+        .conclusion h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .conclusion ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .conclusion li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .conclusion li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .key-point {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .key-point:hover {
+            transform: translateY(-5px);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 DHCP, DNS, NAT y PAT</h1>
+            <p>Fundamentos esenciales en redes domésticas y empresariales</p>
+        </header>
+
+        <div class="content">
+            <!-- DHCP Section -->
+            <div class="section">
+                <h2><span class="icon">📡</span> DHCP (Dynamic Host Configuration Protocol)</h2>
+                
+                <h3>Concepto</h3>
+                <p>El DHCP se encarga de asignar automáticamente direcciones IP, máscara de subred, gateway y DNS a los dispositivos de la red. De esta manera, no tenemos que configurar cada equipo manualmente, lo que simplifica enormemente la administración de redes, especialmente en entornos con múltiples dispositivos.</p>
+
+                <h3>Escenario en Casa</h3>
+                <div class="example-box">
+                    <strong>Configuración de red doméstica:</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Red: <code>192.168.1.0/24</code></li>
+                        <li>Router con IP: <code>192.168.1.1</code></li>
+                        <li>Rango DHCP: <code>192.168.1.100 – 192.168.1.200</code></li>
+                    </ul>
+                </div>
+
+                <div class="network-diagram">
+                    <div class="device">Router<br>192.168.1.1</div>
+                    <div class="arrow">↓</div>
+                    <div style="margin-top: 20px;">
+                        <div class="device">Laptop<br>192.168.1.100</div>
+                        <div class="device">Smartphone<br>192.168.1.101</div>
+                        <div class="device">Consola<br>192.168.1.102</div>
+                    </div>
+                </div>
+
+                <h3>Flujo del DHCP (DORA)</h3>
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <div><strong>Discover:</strong> El dispositivo envía un broadcast solicitando una IP</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div><strong>Offer:</strong> El servidor DHCP ofrece una dirección disponible del pool</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div><strong>Request:</strong> El dispositivo solicita formalmente la IP ofrecida</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <div><strong>Ack:</strong> El servidor confirma la asignación y registra el lease</div>
+                    </div>
+                </div>
+
+                <h3>Configuración en Cisco IOS</h3>
+                <div class="code-block">
+<code>ip dhcp pool RED_LOCAL
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 8.8.8.8
+ lease 7</code>
+                </div>
+
+                <div class="security-alert danger">
+                    <strong>🔐 Riesgo de Seguridad: DHCP Spoofing</strong>
+                    Un atacante puede configurar un servidor DHCP malicioso en la red para asignar configuraciones falsas, redirigiendo el tráfico a través de sus sistemas y realizando ataques Man-in-the-Middle.
+                </div>
+
+                <div class="security-alert success">
+                    <strong>✅ Mitigación</strong>
+                    Habilitar DHCP Snooping en switches gestionables para permitir solo servidores DHCP autorizados:
+                    <div class="code-block" style="margin-top: 10px;">
+<code>ip dhcp snooping
+ip dhcp snooping vlan 1
+interface GigabitEthernet0/1
+ ip dhcp snooping trust</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DNS Section -->
+            <div class="section">
+                <h2><span class="icon">🔍</span> DNS (Domain Name System)</h2>
+                
+                <h3>Concepto</h3>
+                <p>El DNS actúa como la "agenda telefónica" de Internet, traduciendo nombres de dominio legibles por humanos (como www.ejemplo.com) en direcciones IP numéricas que los dispositivos utilizan para comunicarse. Sin DNS, tendríamos que memorizar direcciones IP para cada sitio web.</p>
+
+                <h3>Escenario Doméstico</h3>
+                <div class="example-box">
+                    <strong>Ejemplo de resolución local:</strong>
+                    <p style="margin-top: 10px;">Cuando escribes <code>miportal</code> en el navegador, el router resuelve internamente a <code>192.168.1.5</code> (tu laptop), permitiendo acceso rápido sin necesidad de recordar la IP.</p>
+                </div>
+
+                <div class="network-diagram">
+                    <div class="device">Usuario escribe:<br>"miportal"</div>
+                    <div class="arrow">→</div>
+                    <div class="device">Router DNS<br>Resuelve</div>
+                    <div class="arrow">→</div>
+                    <div class="device">Conecta a:<br>192.168.1.5</div>
+                </div>
+
+                <h3>Configuración en Cisco IOS</h3>
+                <div class="code-block">
+<code>ip dns server
+ip host miportal 192.168.1.5
+ip host servidor-local 192.168.1.10
+ip name-server 8.8.8.8 8.8.4.4</code>
+                </div>
+
+                <h3>Tipos de Registros DNS</h3>
+                <div class="key-points">
+                    <div class="key-point">
+                        <strong>A Record</strong>
+                        <p>Mapea un nombre de dominio a una dirección IPv4</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>AAAA Record</strong>
+                        <p>Mapea un nombre de dominio a una dirección IPv6</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>CNAME</strong>
+                        <p>Alias de un dominio a otro dominio</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>MX Record</strong>
+                        <p>Define servidores de correo para el dominio</p>
+                    </div>
+                </div>
+
+                <div class="security-alert danger">
+                    <strong>🔐 Riesgos de Seguridad DNS</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><strong>DNS Spoofing:</strong> Respuestas DNS falsas que redirigen a sitios maliciosos</li>
+                        <li><strong>Cache Poisoning:</strong> Envenenamiento de la caché DNS con entradas falsas</li>
+                        <li><strong>DNS Tunneling:</strong> Exfiltración de datos usando consultas DNS como canal encubierto</li>
+                        <li><strong>DNS Amplification:</strong> Ataques DDoS usando servidores DNS como amplificadores</li>
+                    </ul>
+                </div>
+
+                <div class="security-alert success">
+                    <strong>✅ Mitigaciones</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Implementar DNSSEC (DNS Security Extensions) para autenticación</li>
+                        <li>Usar firewalls con inspección profunda de tráfico DNS</li>
+                        <li>Configurar servidores DNS confiables (ej: Cloudflare 1.1.1.1, Google 8.8.8.8)</li>
+                        <li>Monitorear anomalías en consultas DNS</li>
+                        <li>Limitar recursión DNS solo a clientes internos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- NAT Section -->
+            <div class="section">
+                <h2><span class="icon">🔄</span> NAT (Network Address Translation)</h2>
+                
+                <h3>Concepto</h3>
+                <p>NAT es una técnica que permite traducir direcciones IP privadas (no enrutables en Internet) a una o más direcciones IP públicas. Esto resuelve el problema de escasez de direcciones IPv4 y permite que múltiples dispositivos compartan una conexión a Internet usando una sola IP pública.</p>
+
+                <h3>Escenario Empresarial</h3>
+                <div class="example-box">
+                    <strong>Configuración típica:</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>PCs internas: 192.168.1.2, 192.168.1.3, 192.168.1.4</li>
+                        <li>IP pública del router: 203.0.113.1</li>
+                        <li>Todas las conexiones salientes aparecen desde la misma IP pública</li>
+                    </ul>
+                </div>
+
+                <div class="network-diagram">
+                    <div style="margin-bottom: 20px;">
+                        <div class="device">PC1<br>192.168.1.2</div>
+                        <div class="device">PC2<br>192.168.1.3</div>
+                        <div class="device">PC3<br>192.168.1.4</div>
+                    </div>
+                    <div class="arrow">↓</div>
+                    <div class="device" style="margin-top: 20px;">Router NAT<br>Traduce a: 203.0.113.1</div>
+                    <div class="arrow">↓</div>
+                    <div class="device" style="margin-top: 20px;">🌐 Internet</div>
+                </div>
+
+                <h3>Tipos de NAT</h3>
+                <div class="key-points">
+                    <div class="key-point">
+                        <strong>NAT Estático</strong>
+                        <p>Mapeo 1:1 permanente entre IP privada e IP pública específica</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>NAT Dinámico</strong>
+                        <p>Asigna IPs públicas de un pool dinámicamente según demanda</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>NAT Overload (PAT)</strong>
+                        <p>Múltiples IPs privadas comparten una IP pública usando puertos</p>
+                    </div>
+                </div>
+
+                <h3>Configuración en Cisco IOS</h3>
+                <div class="code-block">
+<code># Definir interfaces interna y externa
+interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/1
+ ip address 203.0.113.1 255.255.255.0
+ ip nat outside
+
+# Definir qué direcciones usarán NAT
+access-list 1 permit 192.168.1.0 0.0.0.255
+
+# Configurar NAT dinámico con sobrecarga (PAT)
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+
+# Verificar traducciones activas
+show ip nat translations
+show ip nat statistics</code>
+                </div>
+
+                <div class="security-alert">
+                    <strong>⚠️ Nota Importante</strong>
+                    NAT NO es un mecanismo de seguridad por sí mismo. Aunque oculta las direcciones IP internas, no debe considerarse como una barrera de seguridad. Se requieren firewalls y otras medidas de seguridad complementarias.
+                </div>
+            </div>
+
+            <!-- PAT Section -->
+            <div class="section">
+                <h2><span class="icon">🔌</span> PAT (Port Address Translation)</h2>
+                
+                <h3>Concepto</h3>
+                <p>PAT, también conocido como NAT con sobrecarga, permite que múltiples dispositivos internos compartan una única dirección IP pública. La diferenciación se realiza mediante números de puerto, manteniendo una tabla de traducción que asocia cada conexión interna con un puerto único en la IP pública.</p>
+
+                <h3>Tabla de Traducciones PAT</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dispositivo</th>
+                            <th>IP Privada:Puerto</th>
+                            <th>IP Pública:Puerto</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PC1</td>
+                            <td>192.168.1.2:5001</td>
+                            <td>203.0.113.1:30001</td>
+                            <td>🟢 Activa</td>
+                        </tr>
+                        <tr>
+                            <td>PC2</td>
+                            <td>192.168.1.3:5002</td>
+                            <td>203.0.113.1:30002</td>
+                            <td>🟢 Activa</td>
+                        </tr>
+                        <tr>
+                            <td>PC3</td>
+                            <td>192.168.1.4:5003</td>
+                            <td>203.0.113.1:30003</td>
+                            <td>🟢 Activa</td>
+                        </tr>
+                        <tr>
+                            <td>PC1</td>
+                            <td>192.168.1.2:5010</td>
+                            <td>203.0.113.1:30004</td>
+                            <td>🟢 Activa</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Funcionamiento Detallado</h3>
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <div class="step-number">1</div>
+                        <div>PC2 (192.168.1.3:5002) inicia conexión HTTP a servidor web externo</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">2</div>
+                        <div>Router PAT traduce a 203.0.113.1:30002 y registra en tabla</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">3</div>
+                        <div>Servidor externo ve solo 203.0.113.1:30002 como origen</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">4</div>
+                        <div>Respuesta llega a 203.0.113.1:30002</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-number">5</div>
+                        <div>Router consulta tabla y reenvía a 192.168.1.3:5002</div>
+                    </div>
+                </div>
+
+                <h3>Ventajas de PAT</h3>
+                <div class="key-points">
+                    <div class="key-point">
+                        <strong>💰 Ahorro de IPs</strong>
+                        <p>Miles de dispositivos pueden compartir una sola IP pública</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>🔒 Capa de Ofuscación</strong>
+                        <p>Oculta la topología interna de la red</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>⚡ Eficiencia</strong>
+                        <p>Optimiza el uso de direcciones IPv4 públicas limitadas</p>
+                    </div>
+                    <div class="key-point">
+                        <strong>📊 Escalabilidad</strong>
+                        <p>Soporta hasta 65,000 conexiones simultáneas por IP</p>
+                    </div>
+                </div>
+
+                <h3>Verificación y Troubleshooting</h3>
+                <div class="code-block">
+<code># Ver traducciones activas
+show ip nat translations
+
+# Ver estadísticas de NAT/PAT
+show ip nat statistics
+
+# Limpiar traducciones dinámicas
+clear ip nat translation *
+
+# Debug de NAT (usar con precaución en producción)
+debug ip nat
+
+# Ver traducciones para una IP específica
+show ip nat translations 192.168.1.3</code>
+                </div>
+
+                <div class="example-box">
+                    <strong>💡 Ejemplo de salida de show ip nat translations:</strong>
+                    <div class="code-block" style="margin-top: 10px; background: #2d2d2d;">
+<code>Pro Inside global      Inside local       Outside local      Outside global
+tcp 203.0.113.1:30001  192.168.1.2:5001   74.125.224.72:443  74.125.224.72:443
+tcp 203.0.113.1:30002  192.168.1.3:5002   172.217.16.46:80   172.217.16.46:80
+tcp 203.0.113.1:30003  192.168.1.4:5003   151.101.1.140:443  151.101.1.140:443</code>
+                    </div>
+                </div>
+
+                <h3>Consideraciones de Seguridad</h3>
+                <div class="security-alert">
+                    <strong>⚠️ Limitaciones de Seguridad de PAT</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>PAT no inspecciona el contenido de los paquetes</li>
+                        <li>No protege contra malware o ataques a nivel de aplicación</li>
+                        <li>Puede complicar el logging y trazabilidad de conexiones</li>
+                        <li>Algunos protocolos (FTP, SIP) requieren configuración especial</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Conclusion -->
+            <div class="conclusion">
+                <h2>📌 Conclusiones Clave</h2>
+                
+                <div class="key-points" style="margin-top: 20px;">
+                    <div class="key-point" style="background: rgba(255,255,255,0.1); color: white;">
+                        <strong>🔧 DHCP</strong>
+                        <p>Automatiza la asignación de IPs ahorrando tiempo y reduciendo errores. Requiere protección con DHCP Snooping para evitar servidores maliciosos.</p>
+                    </div>
+                    <div class="key-point" style="background: rgba(255,255,255,0.1); color: white;">
+                        <strong>🔍 DNS</strong>
+                        <p>Fundamental para la navegación moderna, pero vulnerable a múltiples ataques. DNSSEC y monitoreo son esenciales para su seguridad.</p>
+                    </div>
+                    <div class="key-point" style="background: rgba(255,255,255,0.1); color: white;">
+                        <strong>🔄 NAT</strong>
+                        <p>Optimiza el uso de IPv4 al permitir que múltiples dispositivos compartan IPs públicas. No es una medida de seguridad por sí misma.</p>
+                    </div>
+                    <div class="key-point" style="background: rgba(255,255,255,0.1); color: white;">
+                        <strong>🔌 PAT</strong>
+                        <p>Maximiza eficiencia permitiendo miles de conexiones simultáneas con una sola IP pública mediante diferenciación por puertos.</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <h3 style="color: white; margin-bottom: 15px;">🎯 Puntos Finales</h3>
+                    <ul>
+                        <li>Estos protocolos son pilares fundamentales de las redes modernas</li>
+                        <li>Aunque no son intrínsecamente de seguridad, su correcta configuración es crucial</li>
+                        <li>La seguridad debe ser una capa adicional implementada conscientemente</li>
+                        <li>El monitoreo y las actualizaciones regulares son esenciales</li>
+                        <li>La documentación adecuada facilita el mantenimiento y troubleshooting</li>
