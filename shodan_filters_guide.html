@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva de Filtros de Shodan - Aprende a Buscar como un Profesional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0a1628;
+            --primary-light: #0f2340;
+            --accent: #ff6b6b;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --text-primary: #ffffff;
+            --text-secondary: #d0d0d0;
+            --text-tertiary: #a0a0a0;
+            --bg-card: rgba(0, 217, 255, 0.08);
+            --bg-hover: rgba(0, 217, 255, 0.12);
+            --code-bg: rgba(0, 0, 0, 0.4);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 22, 40, 0.98);
+            border-bottom: 2px solid var(--primary);
+            padding: 1rem 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        /* Main Container */
+        main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #00b8d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Secciones */
+        section {
+            margin-bottom: 4rem;
+        }
+
+        section h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        section h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        /* Tarjetas de Filtros */
+        .filter-card {
+            background: var(--bg-card);
+            border-left: 5px solid var(--primary);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+
+        .filter-card:hover {
+            background: var(--bg-hover);
+            transform: translateX(5px);
+        }
+
+        .filter-card.basic {
+            border-left-color: var(--success);
+        }
+
+        .filter-card.intermediate {
+            border-left-color: var(--warning);
+        }
+
+        .filter-card.advanced {
+            border-left-color: var(--accent);
+        }
+
+        .filter-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-level {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .filter-level.basic {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+        }
+
+        .filter-level.intermediate {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+        }
+
+        .filter-level.advanced {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--accent);
+        }
+
+        .filter-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        /* Ejemplos */
+        .example-box {
+            background: var(--code-bg);
+            border-left: 3px solid var(--success);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            border-radius: 0;
+        }
+
+        .example-label {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .example-code {
+            color: var(--primary);
+            font-size: 0.95rem;
+            word-break: break-all;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .example-explanation {
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .copy-btn {
+            background: var(--primary);
+            color: var(--primary-dark);
+            border: none;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .copy-btn:hover {
+            background: #00b8d4;
+            transform: translateY(-2px);
+        }
+
+        /* Grid de Filtros */
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .filters-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        /* Constructor Interactivo */
+        .builder-container {
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 0;
+        }
+
+        .builder-section {
+            margin-bottom: 2rem;
+        }
+
+        .builder-section label {
+            display: block;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .builder-section input,
+        .builder-section select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--primary);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .builder-section input:focus,
+        .builder-section select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        .builder-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--primary);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            word-break: break-all;
+            min-height: 60px;
+        }
+
+        .builder-output.empty {
+            color: var(--text-tertiary);
+        }
+
+        /* Tabla de Referencia */
+        .reference-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-card);
+        }
+
+        .reference-table th {
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--primary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .reference-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .reference-table tr:nth-child(even) {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .reference-table tr:hover {
+            background: rgba(0, 217, 255, 0.08);
+        }
+
+        .reference-table code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.3rem 0.6rem;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Casos de Uso */
+        .use-case {
+            background: var(--bg-card);
+            border-left: 5px solid var(--primary);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+
+        .use-case h4 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .use-case-scenario {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 3px solid var(--warning);
+        }
+
+        .use-case-scenario strong {
+            color: var(--warning);
+        }
+
+        .use-case-solution {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 3px solid var(--success);
+        }
+
+        .use-case-solution strong {
+            color: var(--success);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--bg-card);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Botones */
+        button {
+            background: var(--primary);
+            color: var(--primary-dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        button:hover {
+            background: #00b8d4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(10, 22, 40, 0.95);
+            border-top: 2px solid var(--primary);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 217, 255, 0.2);
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            section h2 {
+                font-size: 1.5rem;
+            }
+
+            .filters-grid,
+            .filters-list {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.85rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+        }
+
+        /* Highlight */
+        .highlight {
+            background: rgba(0, 217, 255, 0.2);
+            padding: 0.2rem 0.4rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(74, 222, 128, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+
+        .info-box strong {
+            color: var(--success);
+        }
+
+        .warning-box {
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+
+        .warning-box strong {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-filter"></i> SHODAN FILTERS
+            </div>
+            <ul class="nav-links">
+                <li><a href="#inicio" class="nav-link active">Inicio</a></li>
+                <li><a href="#basicos" class="nav-link">Básicos</a></li>
+                <li><a href="#intermedios" class="nav-link">Intermedios</a></li>
+                <li><a href="#avanzados" class="nav-link">Avanzados</a></li>
+                <li><a href="#constructor" class="nav-link">Constructor</a></li>
+                <li><a href="#casos" class="nav-link">Casos Uso</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="hero" id="inicio">
+            <h1>Domina los Filtros de Shodan</h1>
+            <p>Guía completa e interactiva para aprender a buscar, filtrar y encontrar cualquier cosa en Internet</p>
+        </section>
+
+        <!-- Introducción -->
+        <section id="introduccion">
+            <h2>¿Por Qué Importan los Filtros?</h2>
+            <p>
+                Shodan indexa más de <span class="highlight">1,000 millones de dispositivos</span> conectados a Internet. Sin filtros, tus búsquedas serían abrumadoramente amplias e inútiles. Los filtros te permiten ser <span class="highlight">específico y preciso</span>, transformando Shodan de una herramienta caótica en un instrumento quirúrgico de reconocimiento.
+            </p>
+            
+            <div class="info-box">
+                <strong>💡 Concepto Clave:</strong> Los filtros de Shodan funcionan como "preguntas" que haces a la base de datos. Cada filtro reduce el conjunto de resultados, acercándote a exactamente lo que buscas.
+            </div>
+
+            <h3>Estructura Básica de una Búsqueda</h3>
+            <p>Toda búsqueda en Shodan sigue este patrón:</p>
+            <div class="example-box">
+                <span class="example-label">Estructura General</span>
+                <div class="example-code">filtro1:valor1 filtro2:valor2 filtro3:valor3</div>
+                <div class="example-explanation">Los filtros se separan por espacios. Puedes combinar múltiples filtros para refinar tu búsqueda.</div>
+            </div>
+
+            <h3>Tipos de Filtros</h3>
+            <p>Los filtros en Shodan se dividen en tres categorías por dificultad:</p>
+            <ul style="list-style: none; color: var(--text-secondary); margin: 1.5rem 0;">
+                <li style="padding: 0.5rem 0; padding-left: 1.5rem; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--success);">✓</span>
+                    <strong style="color: var(--success);">Básicos:</strong> Filtros simples y directos (puerto, país, producto)
+                </li>
+                <li style="padding: 0.5rem 0; padding-left: 1.5rem; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--warning);">✓</span>
+                    <strong style="color: var(--warning);">Intermedios:</strong> Filtros más específicos (versión, componentes, certificados)
+                </li>
+                <li style="padding: 0.5rem 0; padding-left: 1.5rem; position: relative;">
+                    <span style="position: absolute; left: 0; color: var(--accent);">✓</span>
+                    <strong style="color: var(--accent);">Avanzados:</strong> Filtros complejos (búsqueda por hash, ASN, vulnerabilidades)
+                </li>
+            </ul>
+        </section>
+
+        <!-- Filtros Básicos -->
+        <section id="basicos">
+            <h2>Filtros Básicos: Comienza Aquí</h2>
+            <p>Estos son los filtros más comunes y útiles. Domínalos y tendrás acceso a la mayoría de búsquedas prácticas.</p>
+
+            <div class="filters-grid">
+                <!-- Port -->
+                <div class="filter-card basic">
+                    <div class="filter-name">port</div>
+                    <span class="filter-level basic">Básico</span>
+                    <div class="filter-description">Busca dispositivos con un puerto específico abierto</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan escanea puertos específicos en millones de IPs. Este filtro te permite encontrar todos los dispositivos que tienen un puerto particular abierto y accesible.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Encontrar RDP Expuesto</span>
+                        <div class="example-code">port:3389</div>
+                        <div class="example-explanation">Busca todos los dispositivos con RDP (Remote Desktop Protocol) abierto. Este puerto es crítico porque permite acceso remoto a Windows.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('port:3389')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Encontrar SSH Expuesto</span>
+                        <div class="example-code">port:22</div>
+                        <div class="example-explanation">Busca todos los dispositivos con SSH (Secure Shell) abierto. SSH es el protocolo estándar para acceso remoto a servidores Linux.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('port:22')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Encontrar Servidores Web</span>
+                        <div class="example-code">port:80 port:443</div>
+                        <div class="example-explanation">Busca dispositivos con puertos HTTP (80) y HTTPS (443) abiertos. Estos son los puertos estándar para servidores web.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('port:80 port:443')">Copiar</button>
+                    </div>
+
+                    <h4>Puertos Comunes a Buscar</h4>
+                    <table class="reference-table" style="font-size: 0.9rem;">
+                        <tr>
+                            <th>Puerto</th>
+                            <th>Servicio</th>
+                            <th>Riesgo</th>
+                        </tr>
+                        <tr>
+                            <td>22</td>
+                            <td>SSH</td>
+                            <td>Alto</td>
+                        </tr>
+                        <tr>
+                            <td>3389</td>
+                            <td>RDP</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>5900</td>
+                            <td>VNC</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>27017</td>
+                            <td>MongoDB</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>3306</td>
+                            <td>MySQL</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>5432</td>
+                            <td>PostgreSQL</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>6379</td>
+                            <td>Redis</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>9200</td>
+                            <td>Elasticsearch</td>
+                            <td>Crítico</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Country -->
+                <div class="filter-card basic">
+                    <div class="filter-name">country</div>
+                    <span class="filter-level basic">Básico</span>
+                    <div class="filter-description">Filtra resultados por código de país (ISO 3166-1 alpha-2)</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan geolocaliza todas las IPs. Este filtro te permite buscar dispositivos en países específicos, útil para auditorías regionales o investigaciones geográficas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Servidores en España</span>
+                        <div class="example-code">country:ES</div>
+                        <div class="example-explanation">Busca todos los dispositivos localizados en España. Útil para auditorías de infraestructura nacional.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('country:ES')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: RDP en Estados Unidos</span>
+                        <div class="example-code">port:3389 country:US</div>
+                        <div class="example-explanation">Combina dos filtros: busca RDP abierto solo en Estados Unidos. Esto reduce drásticamente los resultados.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('port:3389 country:US')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Múltiples Países</span>
+                        <div class="example-code">country:CO country:MX country:AR</div>
+                        <div class="example-explanation">Busca dispositivos en Colombia, México y Argentina. Útil para auditorías regionales de América Latina.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('country:CO country:MX country:AR')">Copiar</button>
+                    </div>
+
+                    <h4>Códigos de País Comunes</h4>
+                    <table class="reference-table" style="font-size: 0.9rem;">
+                        <tr>
+                            <th>Código</th>
+                            <th>País</th>
+                        </tr>
+                        <tr>
+                            <td>US</td>
+                            <td>Estados Unidos</td>
+                        </tr>
+                        <tr>
+                            <td>ES</td>
+                            <td>España</td>
+                        </tr>
+                        <tr>
+                            <td>MX</td>
+                            <td>México</td>
+                        </tr>
+                        <tr>
+                            <td>CO</td>
+                            <td>Colombia</td>
+                        </tr>
+                        <tr>
+                            <td>BR</td>
+                            <td>Brasil</td>
+                        </tr>
+                        <tr>
+                            <td>DE</td>
+                            <td>Alemania</td>
+                        </tr>
+                        <tr>
+                            <td>FR</td>
+                            <td>Francia</td>
+                        </tr>
+                        <tr>
+                            <td>GB</td>
+                            <td>Reino Unido</td>
+                        </tr>
+                        <tr>
+                            <td>CN</td>
+                            <td>China</td>
+                        </tr>
+                        <tr>
+                            <td>JP</td>
+                            <td>Japón</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Product -->
+                <div class="filter-card basic">
+                    <div class="filter-name">product</div>
+                    <span class="filter-level basic">Básico</span>
+                    <div class="filter-description">Busca dispositivos ejecutando un software específico</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan identifica el software que corre en cada dispositivo leyendo los banners. Este filtro te permite encontrar todos los dispositivos con un producto específico.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Servidores Apache</span>
+                        <div class="example-code">product:"Apache"</div>
+                        <div class="example-explanation">Busca todos los dispositivos ejecutando Apache (servidor web popular). Encontrarás miles de resultados.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"Apache\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Bases de Datos MongoDB</span>
+                        <div class="example-code">product:"MongoDB"</div>
+                        <div class="example-explanation">Busca todos los servidores MongoDB expuestos. MongoDB sin autenticación es extremadamente peligroso.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"MongoDB\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Sistemas SCADA</span>
+                        <div class="example-code">product:"Siemens S7"</div>
+                        <div class="example-explanation">Busca sistemas de control industrial Siemens S7. Estos son críticos y NO deberían estar expuestos a Internet.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"Siemens S7\"')">Copiar</button>
+                    </div>
+
+                    <h4>Productos Comunes a Buscar</h4>
+                    <table class="reference-table" style="font-size: 0.9rem;">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Riesgo</th>
+                        </tr>
+                        <tr>
+                            <td>Apache</td>
+                            <td>Servidor Web</td>
+                            <td>Medio</td>
+                        </tr>
+                        <tr>
+                            <td>Nginx</td>
+                            <td>Servidor Web</td>
+                            <td>Medio</td>
+                        </tr>
+                        <tr>
+                            <td>MongoDB</td>
+                            <td>Base de Datos</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>MySQL</td>
+                            <td>Base de Datos</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>Siemens S7</td>
+                            <td>SCADA</td>
+                            <td>Crítico</td>
+                        </tr>
+                        <tr>
+                            <td>Ollama</td>
+                            <td>LLM</td>
+                            <td>Crítico</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Hostname -->
+                <div class="filter-card basic">
+                    <div class="filter-name">hostname</div>
+                    <span class="filter-level basic">Básico</span>
+                    <div class="filter-description">Busca por nombre de dominio o hostname</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan realiza búsqueda inversa de DNS. Este filtro te permite encontrar todos los dispositivos asociados con un dominio específico.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Infraestructura de una Empresa</span>
+                        <div class="example-code">hostname:"google.com"</div>
+                        <div class="example-explanation">Busca todos los dispositivos cuyo hostname contiene "google.com". Encontrarás la infraestructura de Google expuesta.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('hostname:\"google.com\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Subdominios Específicos</span>
+                        <div class="example-code">hostname:"api.example.com"</div>
+                        <div class="example-explanation">Busca dispositivos con el hostname exacto "api.example.com". Útil para encontrar APIs expuestas.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('hostname:\"api.example.com\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Búsqueda Parcial</span>
+                        <div class="example-code">hostname:"*.example.com"</div>
+                        <div class="example-explanation">Busca todos los subdominios de example.com. El asterisco (*) actúa como comodín.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('hostname:\"*.example.com\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- OS -->
+                <div class="filter-card basic">
+                    <div class="filter-name">os</div>
+                    <span class="filter-level basic">Básico</span>
+                    <div class="filter-description">Filtra por sistema operativo</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan intenta identificar el sistema operativo basándose en las respuestas de red. Este filtro es útil para encontrar dispositivos con sistemas operativos específicos.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Servidores Windows</span>
+                        <div class="example-code">os:"Windows Server"</div>
+                        <div class="example-explanation">Busca todos los servidores Windows expuestos. Windows Server es un objetivo común para ataques RDP.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('os:\"Windows Server\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Servidores Linux</span>
+                        <div class="example-code">os:"Linux"</div>
+                        <div class="example-explanation">Busca todos los servidores Linux expuestos. Útil para encontrar servidores con SSH abierto.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('os:\"Linux\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Dispositivos IoT</span>
+                        <div class="example-code">os:"Linux" port:8080</div>
+                        <div class="example-explanation">Busca dispositivos Linux con puerto 8080 abierto. Muchos IoT usan este puerto.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('os:\"Linux\" port:8080')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- ISP -->
+                <div class="filter-card basic">
+                    <div class="filter-name">isp</div>
+                    <span class="filter-level basic">Básico</span>
+                    <div class="filter-description">Filtra por proveedor de Internet (ISP)</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan identifica el ISP basándose en el rango de IP. Este filtro es útil para encontrar dispositivos en redes específicas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Dispositivos en Vodafone</span>
+                        <div class="example-code">isp:"Vodafone"</div>
+                        <div class="example-explanation">Busca todos los dispositivos en la red de Vodafone. Útil para auditorías de ISP específicos.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('isp:\"Vodafone\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Combinación ISP + Puerto</span>
+                        <div class="example-code">isp:"Telefonica" port:3389</div>
+                        <div class="example-explanation">Busca RDP expuesto en la red de Telefónica. Combina dos filtros para máxima precisión.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('isp:\"Telefonica\" port:3389')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- City -->
+                <div class="filter-card basic">
+                    <div class="filter-name">city</div>
+                    <span class="filter-level basic">Básico</span>
+                    <div class="filter-description">Filtra por ciudad</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan geolocaliza IPs a nivel de ciudad. Este filtro es útil para auditorías locales o investigaciones geográficas específicas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Dispositivos en Madrid</span>
+                        <div class="example-code">city:"Madrid"</div>
+                        <div class="example-explanation">Busca todos los dispositivos en Madrid. Útil para auditorías locales.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('city:\"Madrid\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Servidores en Nueva York</span>
+                        <div class="example-code">city:"New York" port:443</div>
+                        <div class="example-explanation">Busca servidores HTTPS en Nueva York. Combina ubicación y puerto.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('city:\"New York\" port:443')">Copiar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filtros Intermedios -->
+        <section id="intermedios">
+            <h2>Filtros Intermedios: Aumenta tu Precisión</h2>
+            <p>Estos filtros te permiten ser más específico y encontrar objetivos muy particulares.</p>
+
+            <div class="filters-grid">
+                <!-- Version -->
+                <div class="filter-card intermediate">
+                    <div class="filter-name">version</div>
+                    <span class="filter-level intermediate">Intermedio</span>
+                    <div class="filter-description">Busca versiones específicas de software</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan identifica la versión exacta del software. Este filtro es crítico para encontrar dispositivos vulnerables a CVEs específicos.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Apache Antiguo Vulnerable</span>
+                        <div class="example-code">product:"Apache" version:"2.2.8"</div>
+                        <div class="example-explanation">Busca Apache 2.2.8, una versión antigua con múltiples CVEs conocidos. Estos servidores son fáciles de explotar.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"Apache\" version:\"2.2.8\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Windows Server Antiguo</span>
+                        <div class="example-code">os:"Windows Server 2008"</div>
+                        <div class="example-explanation">Busca Windows Server 2008, un sistema operativo antiguo sin soporte. Extremadamente vulnerable.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('os:\"Windows Server 2008\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Nginx Específico</span>
+                        <div class="example-code">product:"Nginx" version:"1.14"</div>
+                        <div class="example-explanation">Busca Nginx versión 1.14. Útil para encontrar servidores con vulnerabilidades conocidas en esa versión.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"Nginx\" version:\"1.14\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- HTTP Title -->
+                <div class="filter-card intermediate">
+                    <div class="filter-name">http.title</div>
+                    <span class="filter-level intermediate">Intermedio</span>
+                    <div class="filter-description">Busca por el título HTML de una página web</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan lee el título HTML de páginas web. Este filtro es útil para encontrar aplicaciones específicas o paneles de administración.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Paneles de Administración</span>
+                        <div class="example-code">http.title:"Admin Login"</div>
+                        <div class="example-explanation">Busca páginas con título "Admin Login". Encontrarás paneles de administración expuestos.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.title:\"Admin Login\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Cámaras Web</span>
+                        <div class="example-code">http.title:"webcamXP"</div>
+                        <div class="example-explanation">Busca cámaras web ejecutando webcamXP. Muchas están expuestas sin autenticación.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.title:\"webcamXP\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Routers D-Link</span>
+                        <div class="example-code">http.title:"D-Link" html:"login"</div>
+                        <div class="example-explanation">Busca routers D-Link con página de login. Muchos tienen credenciales por defecto.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.title:\"D-Link\" html:\"login\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- HTTP Status -->
+                <div class="filter-card intermediate">
+                    <div class="filter-name">http.status</div>
+                    <span class="filter-level intermediate">Intermedio</span>
+                    <div class="filter-description">Filtra por código de estado HTTP</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Los códigos HTTP indican el estado de una respuesta (200=OK, 401=No autorizado, 403=Prohibido, etc.). Este filtro es útil para encontrar servidores con configuraciones específicas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Directorios Abiertos</span>
+                        <div class="example-code">http.status:200 "Index of /"</div>
+                        <div class="example-explanation">Busca servidores que devuelven 200 (OK) con "Index of /" (directorio abierto). Estos exponen archivos sensibles.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.status:200 \"Index of /\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Servidores Sin Autenticación</span>
+                        <div class="example-code">http.status:200 product:"MongoDB"</div>
+                        <div class="example-explanation">Busca MongoDB que responde con 200 (sin requerir autenticación). Extremadamente peligroso.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.status:200 product:\"MongoDB\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- SSL Cert -->
+                <div class="filter-card intermediate">
+                    <div class="filter-name">ssl.cert.expired</div>
+                    <span class="filter-level intermediate">Intermedio</span>
+                    <div class="filter-description">Filtra por certificados SSL expirados</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan verifica la validez de certificados SSL. Los certificados expirados indican descuido en la administración del servidor.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Certificados Expirados</span>
+                        <div class="example-code">ssl.cert.expired:true</div>
+                        <div class="example-explanation">Busca todos los servidores con certificados SSL expirados. Indica falta de mantenimiento.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('ssl.cert.expired:true')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Certificados Válidos</span>
+                        <div class="example-code">ssl.cert.expired:false port:443</div>
+                        <div class="example-explanation">Busca servidores HTTPS bien mantenidos con certificados válidos.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('ssl.cert.expired:false port:443')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- SSL Cert Subject -->
+                <div class="filter-card intermediate">
+                    <div class="filter-name">ssl.cert.subject</div>
+                    <span class="filter-level intermediate">Intermedio</span>
+                    <div class="filter-description">Busca por el asunto del certificado SSL</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>El asunto del certificado contiene información sobre la organización. Este filtro es útil para encontrar infraestructura de empresas específicas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Certificados de una Empresa</span>
+                        <div class="example-code">ssl.cert.subject:"Google Inc"</div>
+                        <div class="example-explanation">Busca todos los certificados SSL emitidos a Google Inc. Encontrarás infraestructura de Google.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('ssl.cert.subject:\"Google Inc\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Certificados Wildcard</span>
+                        <div class="example-code">ssl.cert.subject:"*.example.com"</div>
+                        <div class="example-explanation">Busca certificados wildcard para example.com. Estos cubren todos los subdominios.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('ssl.cert.subject:\"*.example.com\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- HTML Content -->
+                <div class="filter-card intermediate">
+                    <div class="filter-name">html</div>
+                    <span class="filter-level intermediate">Intermedio</span>
+                    <div class="filter-description">Busca por contenido HTML específico</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan indexa el contenido HTML de páginas web. Este filtro es útil para encontrar aplicaciones específicas o tecnologías.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Paneles de Login</span>
+                        <div class="example-code">html:"username" html:"password" html:"login"</div>
+                        <div class="example-explanation">Busca páginas con campos de username, password y login. Encontrarás formularios de autenticación.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('html:\"username\" html:\"password\" html:\"login\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Aplicaciones Específicas</span>
+                        <div class="example-code">html:"Powered by Drupal"</div>
+                        <div class="example-explanation">Busca sitios web que usan Drupal. Útil para encontrar aplicaciones específicas.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('html:\"Powered by Drupal\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- Has Screenshot -->
+                <div class="filter-card intermediate">
+                    <div class="filter-name">has_screenshot</div>
+                    <span class="filter-level intermediate">Intermedio</span>
+                    <div class="filter-description">Filtra dispositivos con capturas de pantalla disponibles</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan captura pantallas de servicios web. Este filtro es útil para encontrar dispositivos con interfaces visuales accesibles.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Cámaras con Feeds Visibles</span>
+                        <div class="example-code">has_screenshot:true "webcam"</div>
+                        <div class="example-explanation">Busca cámaras web con capturas de pantalla disponibles. Puedes ver los feeds en vivo.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('has_screenshot:true \"webcam\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Paneles de Administración Visibles</span>
+                        <div class="example-code">has_screenshot:true http.title:"Admin"</div>
+                        <div class="example-explanation">Busca paneles de administración con capturas disponibles. Puedes ver la interfaz.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('has_screenshot:true http.title:\"Admin\"')">Copiar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filtros Avanzados -->
+        <section id="avanzados">
+            <h2>Filtros Avanzados: Domina el Arte</h2>
+            <p>Estos filtros requieren más conocimiento técnico pero ofrecen capacidades poderosas de búsqueda.</p>
+
+            <div class="filters-grid">
+                <!-- ASN -->
+                <div class="filter-card advanced">
+                    <div class="filter-name">asn</div>
+                    <span class="filter-level advanced">Avanzado</span>
+                    <div class="filter-description">Filtra por Autonomous System Number (ASN)</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Un ASN es un identificador único para redes autónomas en Internet. Cada ISP, proveedor de nube y empresa grande tiene su propio ASN. Este filtro es útil para encontrar toda la infraestructura de una organización.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Infraestructura de Google</span>
+                        <div class="example-code">asn:"AS15169"</div>
+                        <div class="example-explanation">AS15169 es el ASN de Google. Busca todos los dispositivos en la red de Google. Encontrarás miles de servidores.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('asn:\"AS15169\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Infraestructura de AWS</span>
+                        <div class="example-code">asn:"AS16509"</div>
+                        <div class="example-explanation">AS16509 es el ASN de Amazon Web Services. Busca toda la infraestructura de AWS.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('asn:\"AS16509\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 3: Combinación ASN + Puerto</span>
+                        <div class="example-code">asn:"AS15169" port:3389</div>
+                        <div class="example-explanation">Busca RDP abierto en la red de Google. Combina ASN con puerto para máxima precisión.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('asn:\"AS15169\" port:3389')">Copiar</button>
+                    </div>
+
+                    <h4>ASNs Comunes</h4>
+                    <table class="reference-table" style="font-size: 0.9rem;">
+                        <tr>
+                            <th>ASN</th>
+                            <th>Organización</th>
+                        </tr>
+                        <tr>
+                            <td>AS15169</td>
+                            <td>Google Inc.</td>
+                        </tr>
+                        <tr>
+                            <td>AS16509</td>
+                            <td>Amazon Web Services</td>
+                        </tr>
+                        <tr>
+                            <td>AS8075</td>
+                            <td>Microsoft</td>
+                        </tr>
+                        <tr>
+                            <td>AS16012</td>
+                            <td>Facebook/Meta</td>
+                        </tr>
+                        <tr>
+                            <td>AS2906</td>
+                            <td>Netflix</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- CIDR -->
+                <div class="filter-card advanced">
+                    <div class="filter-name">cidr</div>
+                    <span class="filter-level advanced">Avanzado</span>
+                    <div class="filter-description">Busca dentro de un rango de IP específico (notación CIDR)</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>CIDR (Classless Inter-Domain Routing) es una notación para especificar rangos de IP. Este filtro es útil para auditar redes específicas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Rango de IPs Específico</span>
+                        <div class="example-code">cidr:"192.168.1.0/24"</div>
+                        <div class="example-explanation">Busca dispositivos en el rango 192.168.1.0 a 192.168.1.255. Útil para auditar subredes específicas.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('cidr:\"192.168.1.0/24\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Rango Más Amplio</span>
+                        <div class="example-code">cidr:"10.0.0.0/8"</div>
+                        <div class="example-explanation">Busca dispositivos en el rango 10.0.0.0 a 10.255.255.255. Rango privado muy amplio.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('cidr:\"10.0.0.0/8\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- Org -->
+                <div class="filter-card advanced">
+                    <div class="filter-name">org</div>
+                    <span class="filter-level advanced">Avanzado</span>
+                    <div class="filter-description">Busca por nombre de organización registrada</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan identifica la organización propietaria de un rango de IP basándose en registros WHOIS. Este filtro es útil para encontrar toda la infraestructura de una organización.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Infraestructura de una Empresa</span>
+                        <div class="example-code">org:"Microsoft Corporation"</div>
+                        <div class="example-explanation">Busca todos los dispositivos registrados a Microsoft Corporation. Encontrarás su infraestructura global.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('org:\"Microsoft Corporation\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Combinación Org + Puerto</span>
+                        <div class="example-code">org:"Apple Inc" port:443</div>
+                        <div class="example-explanation">Busca servidores HTTPS en la infraestructura de Apple.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('org:\"Apple Inc\" port:443')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- CVE -->
+                <div class="filter-card advanced">
+                    <div class="filter-name">vuln</div>
+                    <span class="filter-level advanced">Avanzado</span>
+                    <div class="filter-description">Busca dispositivos con vulnerabilidades conocidas (CVE)</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan identifica vulnerabilidades conocidas basándose en versiones de software. Este filtro es crítico para encontrar dispositivos explotables.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Drupal Vulnerable</span>
+                        <div class="example-code">http.component:"Drupal" vuln:"CVE-2018-7600"</div>
+                        <div class="example-explanation">Busca sitios Drupal vulnerables a CVE-2018-7600 (Drupalgeddon 2). Este CVE permite ejecución remota de código.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.component:\"Drupal\" vuln:\"CVE-2018-7600\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Apache Struts Vulnerable</span>
+                        <div class="example-code">product:"Apache Struts" vuln:"CVE-2017-5645"</div>
+                        <div class="example-explanation">Busca servidores Apache Struts vulnerables a CVE-2017-5645. Este es un CVE crítico.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"Apache Struts\" vuln:\"CVE-2017-5645\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- HTTP Component -->
+                <div class="filter-card advanced">
+                    <div class="filter-name">http.component</div>
+                    <span class="filter-level advanced">Avanzado</span>
+                    <div class="filter-description">Busca por componentes HTTP detectados</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Shodan detecta componentes web como CMS, frameworks, librerías, etc. Este filtro es útil para encontrar aplicaciones específicas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Sitios WordPress</span>
+                        <div class="example-code">http.component:"WordPress"</div>
+                        <div class="example-explanation">Busca todos los sitios web que usan WordPress. Encontrarás millones de resultados.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.component:\"WordPress\"')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Sitios Joomla</span>
+                        <div class="example-code">http.component:"Joomla"</div>
+                        <div class="example-explanation">Busca todos los sitios que usan Joomla. Útil para encontrar objetivos específicos.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.component:\"Joomla\"')">Copiar</button>
+                    </div>
+                </div>
+
+                <!-- Hash de Favicon -->
+                <div class="filter-card advanced">
+                    <div class="filter-name">http.favicon.hash</div>
+                    <span class="filter-level advanced">Avanzado</span>
+                    <div class="filter-description">Busca por hash del favicon (icono del sitio)</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>Cada aplicación web tiene un favicon único. Shodan calcula un hash del favicon. Este filtro es útil para encontrar instancias de aplicaciones específicas.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: Instancias de una Aplicación</span>
+                        <div class="example-code">http.favicon.hash:"-1234567890"</div>
+                        <div class="example-explanation">Busca todas las instancias de una aplicación específica por su favicon. Útil para encontrar instalaciones de software.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('http.favicon.hash:\"-1234567890\"')">Copiar</button>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Nota:</strong> Para usar este filtro, necesitas conocer el hash del favicon. Puedes obtenerlo analizando el favicon de una instancia conocida de la aplicación.
+                    </div>
+                </div>
+
+                <!-- Negación -->
+                <div class="filter-card advanced">
+                    <div class="filter-name">-filtro (Negación)</div>
+                    <span class="filter-level advanced">Avanzado</span>
+                    <div class="filter-description">Excluye resultados que coincidan con un filtro</div>
+                    
+                    <h4>Descripción Técnica</h4>
+                    <p>El signo menos (-) niega un filtro. Útil para excluir falsos positivos o resultados no deseados.</p>
+
+                    <h4>Ejemplos Prácticos</h4>
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 1: MongoDB Sin Autenticación</span>
+                        <div class="example-code">product:"MongoDB" -authentication</div>
+                        <div class="example-explanation">Busca MongoDB pero excluye aquellos con autenticación habilitada. Encuentra solo los vulnerables.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"MongoDB\" -authentication')">Copiar</button>
+                    </div>
+
+                    <div class="example-box">
+                        <span class="example-label">Ejemplo 2: Apache Sin SSL</span>
+                        <div class="example-code">product:"Apache" -ssl</div>
+                        <div class="example-explanation">Busca Apache pero excluye aquellos con SSL. Encuentra solo HTTP sin encripción.</div>
+                        <button class="copy-btn" onclick="copyToClipboard('product:\"Apache\" -ssl')">Copiar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Constructor Interactivo -->
+        <section id="constructor">
+            <h2>Constructor Interactivo de Búsquedas</h2>
+            <p>Usa esta herramienta para construir búsquedas complejas paso a paso. Ver la salida en tiempo real te ayudará a entender cómo funcionan los filtros.</p>
+
+            <div class="builder-container">
+                <div class="builder-section">
+                    <label>Filtro 1: Puerto</label>
+                    <select id="filter1" onchange="updateBuilder()">
+                        <option value="">-- Selecciona un puerto --</option>
+                        <option value="port:22">SSH (22)</option>
+                        <option value="port:3389">RDP (3389)</option>
+                        <option value="port:80">HTTP (80)</option>
+                        <option value="port:443">HTTPS (443)</option>
+                        <option value="port:27017">MongoDB (27017)</option>
+                        <option value="port:3306">MySQL (3306)</option>
+                        <option value="port:5432">PostgreSQL (5432)</option>
+                        <option value="port:5900">VNC (5900)</option>
+                    </select>
+                </div>
+
+                <div class="builder-section">
+                    <label>Filtro 2: País</label>
+                    <select id="filter2" onchange="updateBuilder()">
+                        <option value="">-- Selecciona un país --</option>
+                        <option value="country:US">Estados Unidos (US)</option>
+                        <option value="country:ES">España (ES)</option>
+                        <option value="country:MX">México (MX)</option>
+                        <option value="country:CO">Colombia (CO)</option>
+                        <option value="country:BR">Brasil (BR)</option>
+                        <option value="country:DE">Alemania (DE)</option>
+                        <option value="country:FR">Francia (FR)</option>
+                        <option value="country:GB">Reino Unido (GB)</option>
+                        <option value="country:CN">China (CN)</option>
+                        <option value="country:JP">Japón (JP)</option>
+                    </select>
+                </div>
+
+                <div class="builder-section">
+                    <label>Filtro 3: Producto</label>
+                    <select id="filter3" onchange="updateBuilder()">
+                        <option value="">-- Selecciona un producto --</option>
+                        <option value="product:&quot;Apache&quot;">Apache</option>
+                        <option value="product:&quot;Nginx&quot;">Nginx</option>
+                        <option value="product:&quot;MongoDB&quot;">MongoDB</option>
+                        <option value="product:&quot;MySQL&quot;">MySQL</option>
+                        <option value="product:&quot;Siemens S7&quot;">Siemens S7</option>
+                        <option value="product:&quot;Ollama&quot;">Ollama</option>
+                    </select>
+                </div>
+
+                <div class="builder-section">
+                    <label>Filtro 4: Sistema Operativo</label>
+                    <select id="filter4" onchange="updateBuilder()">
+                        <option value="">-- Selecciona un SO --</option>
+                        <option value="os:&quot;Windows Server&quot;">Windows Server</option>
+                        <option value="os:&quot;Linux&quot;">Linux</option>
+                        <option value="os:&quot;Windows Server 2008&quot;">Windows Server 2008</option>
+                    </select>
+                </div>
+
+                <div class="builder-section">
+                    <label>Filtro 5: Personalizado (escribe directamente)</label>
+                    <input type="text" id="filter5" placeholder="ej: has_screenshot:true" onchange="updateBuilder()" oninput="updateBuilder()">
+                </div>
+
+                <div class="builder-output empty" id="output">
+                    Tu búsqueda aparecerá aquí...
+                </div>
+
+                <button onclick="copyOutput()" style="margin-top: 1rem;">Copiar Búsqueda Completa</button>
+                <button onclick="openShodan()" style="margin-top: 1rem; margin-left: 1rem;">Abrir en Shodan.io</button>
+            </div>
+        </section>
+
+        <!-- Casos de Uso Prácticos -->
+        <section id="casos">
+            <h2>Casos de Uso Prácticos</h2>
+            <p>Aquí hay escenarios reales y las búsquedas exactas que usarías para resolverlos.</p>
+
+            <div class="use-case">
+                <h4><i class="fas fa-search"></i> Caso 1: Auditar tu Propia Infraestructura</h4>
+                <div class="use-case-scenario">
+                    <strong>Escenario:</strong> Eres administrador de TI y quieres saber qué de tu infraestructura está expuesto a Internet.
+                </div>
+                <div class="use-case-solution">
+                    <strong>Solución:</strong>
+                    <div class="example-box">
+                        <span class="example-label">Paso 1: Busca tu IP pública</span>
+                        <div class="example-code">ip:123.45.67.89</div>
+                        <div class="example-explanation">Reemplaza 123.45.67.89 con tu IP pública. Verás todos los puertos y servicios expuestos.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Paso 2: Busca por tu dominio</span>
+                        <div class="example-code">hostname:"tudominio.com"</div>
+                        <div class="example-explanation">Encuentra todos los dispositivos asociados con tu dominio.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Paso 3: Busca por tu ASN</span>
+                        <div class="example-code">asn:"AS12345"</div>
+                        <div class="example-explanation">Reemplaza AS12345 con tu ASN. Verás toda tu infraestructura global.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case">
+                <h4><i class="fas fa-exclamation-triangle"></i> Caso 2: Encontrar Servidores Vulnerables</h4>
+                <div class="use-case-scenario">
+                    <strong>Escenario:</strong> Eres investigador de seguridad y quieres encontrar servidores vulnerables a un CVE específico.
+                </div>
+                <div class="use-case-solution">
+                    <strong>Solución:</strong>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Apache con versión vulnerable</span>
+                        <div class="example-code">product:"Apache" version:"2.2.8" country:US</div>
+                        <div class="example-explanation">Busca Apache 2.2.8 (versión antigua vulnerable) en Estados Unidos. Encontrarás servidores fáciles de explotar.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case">
+                <h4><i class="fas fa-database"></i> Caso 3: Encontrar Bases de Datos Expuestas</h4>
+                <div class="use-case-scenario">
+                    <strong>Escenario:</strong> Quieres encontrar bases de datos MongoDB expuestas sin autenticación.
+                </div>
+                <div class="use-case-solution">
+                    <strong>Solución:</strong>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: MongoDB sin autenticación</span>
+                        <div class="example-code">product:"MongoDB" -authentication</div>
+                        <div class="example-explanation">Busca MongoDB pero excluye aquellos con autenticación. Encontrarás bases de datos completamente abiertas.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: MySQL expuesto</span>
+                        <div class="example-code">product:"MySQL" port:3306 -authentication</div>
+                        <div class="example-explanation">Busca MySQL en el puerto 3306 sin autenticación.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case">
+                <h4><i class="fas fa-camera"></i> Caso 4: Encontrar Cámaras Web Expuestas</h4>
+                <div class="use-case-scenario">
+                    <strong>Escenario:</strong> Quieres encontrar cámaras web con feeds en vivo accesibles.
+                </div>
+                <div class="use-case-solution">
+                    <strong>Solución:</strong>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Cámaras con screenshots</span>
+                        <div class="example-code">has_screenshot:true "webcam"</div>
+                        <div class="example-explanation">Busca cámaras web con capturas de pantalla disponibles. Puedes ver los feeds en vivo.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Cámaras por ubicación</span>
+                        <div class="example-code">has_screenshot:true "webcam" city:"Madrid"</div>
+                        <div class="example-explanation">Busca cámaras en una ciudad específica.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case">
+                <h4><i class="fas fa-building"></i> Caso 5: Auditar Infraestructura de una Empresa</h4>
+                <div class="use-case-scenario">
+                    <strong>Escenario:</strong> Quieres encontrar toda la infraestructura expuesta de una empresa específica.
+                </div>
+                <div class="use-case-solution">
+                    <strong>Solución:</strong>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Por organización</span>
+                        <div class="example-code">org:"Microsoft Corporation"</div>
+                        <div class="example-explanation">Busca toda la infraestructura registrada a una organización.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Por dominio</span>
+                        <div class="example-code">hostname:"*.microsoft.com"</div>
+                        <div class="example-explanation">Busca todos los subdominios de microsoft.com.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Por certificado SSL</span>
+                        <div class="example-code">ssl.cert.subject:"Microsoft Corporation"</div>
+                        <div class="example-explanation">Busca todos los certificados SSL emitidos a Microsoft.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case">
+                <h4><i class="fas fa-shield-alt"></i> Caso 6: Encontrar Paneles de Administración</h4>
+                <div class="use-case-scenario">
+                    <strong>Escenario:</strong> Quieres encontrar paneles de administración expuestos.
+                </div>
+                <div class="use-case-solution">
+                    <strong>Solución:</strong>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Paneles de login</span>
+                        <div class="example-code">http.title:"Admin" html:"login" html:"password"</div>
+                        <div class="example-explanation">Busca páginas con "Admin" en el título y campos de login. Encontrarás paneles de administración.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Routers D-Link</span>
+                        <div class="example-code">http.title:"D-Link" html:"login"</div>
+                        <div class="example-explanation">Busca routers D-Link con página de login. Muchos tienen credenciales por defecto.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case">
+                <h4><i class="fas fa-industry"></i> Caso 7: Encontrar Sistemas SCADA Expuestos</h4>
+                <div class="use-case-scenario">
+                    <strong>Escenario:</strong> Quieres encontrar sistemas de control industrial expuestos (CRÍTICO).
+                </div>
+                <div class="use-case-solution">
+                    <strong>Solución:</strong>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: Siemens S7</span>
+                        <div class="example-code">product:"Siemens S7"</div>
+                        <div class="example-explanation">Busca sistemas SCADA Siemens. Estos NO deberían estar expuestos a Internet.</div>
+                    </div>
+                    <div class="example-box">
+                        <span class="example-label">Búsqueda: SCADA en un país</span>
+                        <div class="example-code">product:"Siemens S7" country:US</div>
+                        <div class="example-explanation">Busca SCADA Siemens en Estados Unidos.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabla de Referencia Rápida -->
+        <section id="referencia">
+            <h2>Tabla de Referencia Rápida</h2>
+            <p>Una tabla completa de todos los filtros principales para referencia rápida.</p>
+
+            <table class="reference-table">
+                <thead>
+                    <tr>
+                        <th>Filtro</th>
+                        <th>Descripción</th>
+                        <th>Ejemplo</th>
+                        <th>Nivel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>port</code></td>
+                        <td>Puerto abierto</td>
+                        <td><code>port:3389</code></td>
+                        <td>Básico</td>
+                    </tr>
+                    <tr>
+                        <td><code>country</code></td>
+                        <td>Código de país</td>
+                        <td><code>country:ES</code></td>
+                        <td>Básico</td>
+                    </tr>
+                    <tr>
+                        <td><code>product</code></td>
+                        <td>Software específico</td>
+                        <td><code>product:"Apache"</code></td>
+                        <td>Básico</td>
+                    </tr>
+                    <tr>
+                        <td><code>hostname</code></td>
+                        <td>Nombre de dominio</td>
+                        <td><code>hostname:"google.com"</code></td>
+                        <td>Básico</td>
+                    </tr>
+                    <tr>
+                        <td><code>os</code></td>
+                        <td>Sistema operativo</td>
+                        <td><code>os:"Linux"</code></td>
+                        <td>Básico</td>
+                    </tr>
+                    <tr>
+                        <td><code>isp</code></td>
+                        <td>Proveedor de Internet</td>
+                        <td><code>isp:"Vodafone"</code></td>
+                        <td>Básico</td>
+                    </tr>
+                    <tr>
+                        <td><code>city</code></td>
+                        <td>Ciudad</td>
+                        <td><code>city:"Madrid"</code></td>
+                        <td>Básico</td>
+                    </tr>
+                    <tr>
+                        <td><code>version</code></td>
+                        <td>Versión de software</td>
+                        <td><code>version:"2.2.8"</code></td>
+                        <td>Intermedio</td>
+                    </tr>
+                    <tr>
+                        <td><code>http.title</code></td>
+                        <td>Título HTML</td>
+                        <td><code>http.title:"Admin"</code></td>
+                        <td>Intermedio</td>
+                    </tr>
+                    <tr>
+                        <td><code>http.status</code></td>
+                        <td>Código HTTP</td>
+                        <td><code>http.status:200</code></td>
+                        <td>Intermedio</td>
+                    </tr>
+                    <tr>
+                        <td><code>ssl.cert.expired</code></td>
+                        <td>Certificado SSL expirado</td>
+                        <td><code>ssl.cert.expired:true</code></td>
+                        <td>Intermedio</td>
+                    </tr>
+                    <tr>
+                        <td><code>ssl.cert.subject</code></td>
+                        <td>Asunto del certificado</td>
+                        <td><code>ssl.cert.subject:"Google"</code></td>
+                        <td>Intermedio</td>
+                    </tr>
+                    <tr>
+                        <td><code>html</code></td>
+                        <td>Contenido HTML</td>
+                        <td><code>html:"login"</code></td>
+                        <td>Intermedio</td>
+                    </tr>
+                    <tr>
+                        <td><code>has_screenshot</code></td>
+                        <td>Tiene captura de pantalla</td>
+                        <td><code>has_screenshot:true</code></td>
+                        <td>Intermedio</td>
+                    </tr>
+                    <tr>
+                        <td><code>asn</code></td>
+                        <td>Autonomous System Number</td>
+                        <td><code>asn:"AS15169"</code></td>
+                        <td>Avanzado</td>
+                    </tr>
+                    <tr>
+                        <td><code>cidr</code></td>
+                        <td>Rango de IPs (CIDR)</td>
+                        <td><code>cidr:"192.168.1.0/24"</code></td>
+                        <td>Avanzado</td>
+                    </tr>
+                    <tr>
+                        <td><code>org</code></td>
+                        <td>Organización registrada</td>
+                        <td><code>org:"Microsoft"</code></td>
+                        <td>Avanzado</td>
+                    </tr>
+                    <tr>
+                        <td><code>vuln</code></td>
+                        <td>Vulnerabilidad (CVE)</td>
+                        <td><code>vuln:"CVE-2018-7600"</code></td>
+                        <td>Avanzado</td>
+                    </tr>
+                    <tr>
+                        <td><code>http.component</code></td>
+                        <td>Componente web</td>
+                        <td><code>http.component:"WordPress"</code></td>
+                        <td>Avanzado</td>
+                    </tr>
+                    <tr>
+                        <td><code>http.favicon.hash</code></td>
+                        <td>Hash del favicon</td>
+                        <td><code>http.favicon.hash:"-1234"</code></td>
+                        <td>Avanzado</td>
+                    </tr>
+                    <tr>
+                        <td><code>-filtro</code></td>
+                        <td>Negación (excluir)</td>
+                        <td><code>-authentication</code></td>
+                        <td>Avanzado</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Consejos Finales -->
+        <section id="consejos">
+            <h2>Consejos y Mejores Prácticas</h2>
+
+            <div class="info-box">
+                <strong>💡 Consejo 1: Empieza Simple</strong>
+                <p>Comienza con filtros básicos (puerto, país, producto). Una vez que los domines, añade filtros intermedios y avanzados.</p>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Consejo 2: Combina Filtros</strong>
+                <p>La verdadera potencia de Shodan viene de combinar múltiples filtros. Cada filtro adicional reduce los resultados y aumenta la precisión.</p>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Consejo 3: Usa Comillas</strong>
+                <p>Cuando busques valores con espacios, usa comillas: <code>product:"Apache 2.4"</code> no <code>product:Apache 2.4</code></p>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Consejo 4: Experimenta con el Constructor</strong>
+                <p>Usa el constructor interactivo para ver cómo se construyen las búsquedas. Esto te ayudará a entender la sintaxis.</p>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Advertencia Legal</strong>
+                <p>Shodan es una herramienta poderosa. Solo mira, no toques. Acceder a sistemas sin autorización es ilegal. Usa Shodan solo para auditar tu propia infraestructura o con permiso explícito.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Recursos Oficiales</h3>
+                <ul>
+                    <li><a href="https://www.shodan.io/" target="_blank">Shodan.io</a></li>
+                    <li><a href="https://maps.shodan.io/" target="_blank">Shodan Maps</a></li>
+                    <li><a href="https://developer.shodan.io/" target="_blank">API de Shodan</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Documentación</h3>
+                <ul>
+                    <li><a href="https://beta.shodan.io/search/filters" target="_blank">Filtros Oficiales</a></li>
+                    <li><a href="https://github.com/humblelad/Shodan-Dorks" target="_blank">Shodan Dorks</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Seguridad</h3>
+                <ul>
+                    <li><a href="https://www.cisa.gov/" target="_blank">CISA</a></li>
+                    <li><a href="https://www.owasp.org/" target="_blank">OWASP</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Ética</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Esta guía es solo para propósitos educativos. Solo mira, no toques. Usa Shodan responsablemente.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; sualba @2025 para educación en ciberseguridad.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Copiar al portapapeles
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copiado: ' + text);
+            });
+        }
+
+        // Constructor interactivo
+        function updateBuilder() {
+            const filter1 = document.getElementById('filter1').value;
+            const filter2 = document.getElementById('filter2').value;
+            const filter3 = document.getElementById('filter3').value;
+            const filter4 = document.getElementById('filter4').value;
+            const filter5 = document.getElementById('filter5').value;
+
+            let query = [filter1, filter2, filter3, filter4, filter5]
+                .filter(f => f.length > 0)
+                .join(' ');
+
+            const output = document.getElementById('output');
+            if (query.length === 0) {
+                output.textContent = 'Tu búsqueda aparecerá aquí...';
+                output.classList.add('empty');
+            } else {
+                output.textContent = query;
+                output.classList.remove('empty');
+            }
+        }
+
+        function copyOutput() {
+            const output = document.getElementById('output').textContent;
+            if (output === 'Tu búsqueda aparecerá aquí...') {
+                alert('Por favor, construye una búsqueda primero');
+                return;
+            }
+            navigator.clipboard.writeText(output).then(() => {
+                alert('Búsqueda copiada al portapapeles');
+            });
+        }
+
+        function openShodan() {
+            const output = document.getElementById('output').textContent;
+            if (output === 'Tu búsqueda aparecerá aquí...') {
+                alert('Por favor, construye una búsqueda primero');
+                return;
+            }
+            const encodedQuery = encodeURIComponent(output);
+            window.open(`https://www.shodan.io/search?query=${encodedQuery}`, '_blank');
+        }
+
+        // Navegación
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

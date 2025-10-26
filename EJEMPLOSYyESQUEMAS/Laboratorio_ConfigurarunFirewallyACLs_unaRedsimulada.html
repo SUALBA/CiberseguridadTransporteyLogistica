@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laboratorio Módulo 5 — Configuración de Firewall y ACLs</title>
+  <style>
+    body{background:#0f1220;color:#e6ebff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:0;padding:0;line-height:1.6}
+    .container{max-width:1100px;margin:auto;padding:20px}
+    h1,h2,h3{color:#7c4dff}
+    pre{background:#0d1329;color:#d7e0ff;padding:12px;border-radius:8px;overflow-x:auto}
+    .callout{background:#151a2f;padding:14px;border-left:4px solid #7c4dff;margin:14px 0;border-radius:6px}
+    .grid{display:grid;gap:18px}
+    .two{grid-template-columns:1fr 1fr}
+    @media(max-width:800px){.two{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Laboratorio Módulo 5 — Configuración de Firewall y ACLs</h1>
+    <p><strong>Objetivo:</strong> aprender a configurar un <em>firewall</em> y listas de control de acceso (<em>ACLs</em>) en una red simulada para protegerla de accesos no autorizados. Con este ejercicio reforzarás la comprensión práctica de cómo estas herramientas gestionan el tráfico en redes de transporte y logística.</p>
+
+    <h2>1. Escenario</h2>
+    <p>Eres el responsable de seguridad de una oficina conectada a Internet. La red tiene varios departamentos: <strong>Administración</strong>, <strong>Finanzas</strong> y <strong>Usuarios generales</strong>. Los requisitos de seguridad son:</p>
+    <ul>
+      <li>Solo <strong>Administración</strong> puede acceder al <strong>Servidor de Finanzas</strong>.</li>
+      <li>Los dispositivos internos (toda la oficina) pueden navegar a Internet.</li>
+      <li>Todo tráfico externo entrante no solicitado debe bloquearse.</li>
+    </ul>
+
+    <h2>2. Topología propuesta</h2>
+    <pre>
+    Internet (ISP)
+        |
+    [Router R1]
+        |
+     [Switch SW1]
+     /    |     \
+ VLAN10 VLAN20 VLAN30
+ ADMIN   FIN   USERS
+    </pre>
+
+    <h2>3. Plan de direccionamiento</h2>
+    <ul>
+      <li>VLAN10 ADMIN: 10.10.10.0/24</li>
+      <li>VLAN20 FIN: 10.10.20.0/24</li>
+      <li>VLAN30 USERS: 10.10.30.0/24</li>
+      <li>Servidor Finanzas: 10.10.20.10</li>
+      <li>Router WAN: 200.1.1.2/30 (ISP: 200.1.1.1)</li>
+    </ul>
+
+    <h2>4. Configuración paso a paso</h2>
+    <h3>4.1 Switch — VLANs y Trunk</h3>
+    <pre>
+SW1# conf t
+vlan 10
+ name ADMIN
+vlan 20
+ name FIN
+vlan 30
+ name USERS
+!
+interface range fa0/1-5
+ switchport mode access
+ switchport access vlan 10
+!
+interface fa0/6
+ switchport mode access
+ switchport access vlan 20
+!
+interface range fa0/7-10
+ switchport mode access
+ switchport access vlan 30
+!
+interface gi0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+end
+wr mem
+    </pre>
+
+    <h3>4.2 Router — Subinterfaces, NAT y ACLs</h3>
+    <pre>
+R1# conf t
+! Interfaces LAN (router-on-a-stick)
+interface gi0/1.10
+ encapsulation dot1Q 10
+ ip address 10.10.10.1 255.255.255.0
+interface gi0/1.20
+ encapsulation dot1Q 20
+ ip address 10.10.20.1 255.255.255.0
+interface gi0/1.30
+ encapsulation dot1Q 30
+ ip address 10.10.30.1 255.255.255.0
+!
+! Interfaz WAN
+interface gi0/0
+ ip address 200.1.1.2 255.255.255.252
+ no shut
+!
+! NAT para salida a Internet
+access-list 100 permit ip 10.10.0.0 0.0.255.255 any
+ip nat inside source list 100 interface gi0/0 overload
+interface gi0/0
+ ip nat outside
+interface gi0/1.10
+ ip nat inside
+interface gi0/1.20
+ ip nat inside
+interface gi0/1.30
+ ip nat inside
+!
+! ACL para acceso a Finanzas
+ip access-list extended FIN_ACCESS
+ permit tcp 10.10.10.0 0.0.0.255 host 10.10.20.10 eq 443
+ deny   ip any host 10.10.20.10 log
+ permit ip any any
+!
+interface gi0/1.20
+ ip access-group FIN_ACCESS in
+!
+ip route 0.0.0.0 0.0.0.0 200.1.1.1
+end
+wr mem
+    </pre>
+
+    <h3>4.3 Firewall por Zonas (ZBF) opcional</h3>
+    <p>Configura zonas <strong>INSIDE</strong> y <strong>OUTSIDE</strong>. Permite solo tráfico establecido desde dentro hacia fuera.</p>
+    <pre>
+zone security INSIDE
+zone security OUTSIDE
+!
+class-map type inspect match-any CM_ALLOWED
+ match protocol tcp
+ match protocol udp
+ match protocol icmp
+!
+policy-map type inspect PM_IN2OUT
+ class type inspect CM_ALLOWED
+  inspect
+ class class-default
+  drop
+!
+zone-pair security ZP_IN_OUT source INSIDE destination OUTSIDE
+ service-policy type inspect PM_IN2OUT
+!
+interface gi0/0
+ zone-member security OUTSIDE
+interface gi0/1.10
+ zone-member security INSIDE
+interface gi0/1.20
+ zone-member security INSIDE
+interface gi0/1.30
+ zone-member security INSIDE
+    </pre>
+
+    <h2>5. Verificación</h2>
+    <ul>
+      <li>ADMIN → Finanzas (https://10.10.20.10) ✔️</li>
+      <li>USERS → Finanzas ✖️ (bloqueado, revisar contador ACL)</li>
+      <li>Cualquier host → Internet ✔️ (NAT activo)</li>
+      <li>Intentos desde fuera → Bloqueados (ZBF)</li>
+    </ul>
+
+    <h2>6. Buenas prácticas</h2>
+    <ul>
+      <li>Aplicar principio de mínimo privilegio en ACLs.</li>
+      <li>Documentar topología y reglas aplicadas.</li>
+      <li>Usar logs para validar denegaciones.</li>
+      <li>Actualizar reglas ante cambios en la red.</li>
+    </ul>
+
+    <h2>7. Extensiones opcionales</h2>
+    <div class="grid two">
+      <div class="callout">
+        <h3>pfSense</h3>
+        <p>En firewall pfSense, se configurarían reglas WAN (bloquear todo) y reglas LAN permitiendo acceso a Internet. Para Finanzas, crear regla en VLAN20 que solo acepte 443 desde VLAN10.</p>
+      </div>
+      <div class="callout">
+        <h3>Linux iptables</h3>
+        <pre>
+iptables -A FORWARD -s 10.10.10.0/24 -d 10.10.20.10 -p tcp --dport 443 -j ACCEPT
+iptables -A FORWARD -d 10.10.20.10 -j DROP
+iptables -t nat -A POSTROUTING -s 10.10.0.0/16 -o eth0 -j MASQUERADE
+        </pre>
+      </div>
+    </div>
+
+    <h2>8. Checklist de entrega</h2>
+    <ul>
+      <li>Archivo de configuración del router y switch.</li>
+      <li>Capturas de pantalla de pruebas exitosas y bloqueadas.</li>
+      <li>Diagrama de red y direccionamiento.</li>
+      <li>Explicación de las decisiones de seguridad aplicadas.</li>
+    </ul>
+
+    <p><em>Este laboratorio permite practicar seguridad en redes de transporte/logística y comprender cómo firewalls y ACLs mitigan riesgos en entornos críticos.</em></p>
+  </div>
+</body>
+</html>
+

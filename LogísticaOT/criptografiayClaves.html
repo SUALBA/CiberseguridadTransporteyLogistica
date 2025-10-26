@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fundamentos de Seguridad & Seguridad de Aplicaciones (Transporte) — Guía Interactiva</title>
+  <meta name="description" content="Guía didáctica e interactiva sobre seguridad de red, dispositivos, criptografía, gestión de claves y seguridad de aplicaciones (SSDLC, pruebas y gestión de vulnerabilidades) aplicada al sector transporte." />
+  <meta name="author" content="Tu Nombre / sualba.dev" />
+  <style>
+    :root{
+      --bg:#0f1220; --panel:#151a2f; --muted:#8ea0c7; --text:#e6ebff; --brand:#7c4dff; --ok:#00c853; --warn:#ffd666; --danger:#ff5252; --chip:#1f2544; --card:#12162a; --border:#232a4a;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans','Apple Color Emoji','Segoe UI Emoji';}
+    a{color:#9bb8ff}
+    .container{max-width:1100px;margin:0 auto;padding:28px}
+    header.hero{position:relative;overflow:hidden;border-radius:20px;background:radial-gradient(1200px 500px at 10% -10%, #273056 0%, transparent 60%),
+                 radial-gradient(900px 400px at 110% 0%, #232a4a 0%, transparent 60%), linear-gradient(135deg,#182043,#0f1220 40%);
+      padding:48px 28px;border:1px solid var(--border);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+    .title{font-size: clamp(1.6rem, 3vw, 2.6rem);font-weight:800;letter-spacing:.3px;margin:0 0 8px}
+    .subtitle{color:var(--muted);margin:0 0 16px;max-width:72ch}
+    .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+    .chip{background:var(--chip);color:#c9d4ff;border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:.85rem}
+
+    nav.toc{position:sticky;top:12px;align-self:start;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;max-height:70vh;overflow:auto}
+    nav.toc h3{margin:0 0 8px;font-size:1rem;color:#c7d2ff}
+    nav.toc a{display:block;text-decoration:none;color:#cbd5ff;padding:6px 8px;border-radius:8px;margin:2px 0}
+    nav.toc a:hover{background:#1b203b}
+
+    main{display:grid;grid-template-columns: 260px 1fr;gap:24px;margin-top:24px}
+    @media (max-width: 920px){ main{grid-template-columns:1fr} nav.toc{position:relative;top:0;max-height:none} }
+
+    section.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 12px 30px rgba(0,0,0,.22);scroll-margin-top:80px}
+    section.card h2{margin:0 0 14px;font-size:1.4rem}
+    section.card h3{margin-top:18px;margin-bottom:10px}
+    p{line-height:1.65}
+    .grid{display:grid;gap:14px}
+    .two{grid-template-columns:repeat(2,1fr)}
+    .three{grid-template-columns:repeat(3,1fr)}
+    @media (max-width: 780px){ .two,.three{grid-template-columns:1fr} }
+
+    .callout{border-left:4px solid var(--brand);background:#151939;padding:14px;border-radius:10px}
+    .example{border-left:4px solid var(--ok);background:#142a1b;padding:14px;border-radius:10px}
+    .remember{border-left:4px solid var(--warn);background:#2a2414;padding:14px;border-radius:10px}
+
+    details.accordion{background:#141935;border:1px solid var(--border);border-radius:12px;padding:12px}
+    details summary{cursor:pointer;font-weight:600}
+    details[open]{background:#121833}
+
+    .kpi{display:flex;gap:18px;align-items:center;background:#0f152e;border:1px solid var(--border);padding:14px;border-radius:12px}
+    .kpi .dot{width:10px;height:10px;background:var(--brand);border-radius:50%}
+
+    .quiz{border:1px solid var(--border);border-radius:16px;padding:18px;background:#11162e}
+    .question{margin:12px 0}
+    .answers{display:grid;gap:10px;margin-top:8px}
+    .answers label{display:flex;gap:10px;align-items:flex-start;background:#0f1430;border:1px solid var(--border);padding:10px;border-radius:10px;cursor:pointer}
+    .answers input{margin-top:3px}
+    .result{margin-top:12px;font-weight:700}
+    .btn{background:var(--brand);color:white;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn.secondary{background:#273056}
+
+    .footer{margin:40px 0 10px;color:#9aa6d1;font-size:.9rem}
+    .tag{background:#1a2141;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:.8rem;color:#cbd5ff}
+    .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#0d1329;border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+
+    .toggle{position:absolute;right:20px;top:20px}
+    .toggle input{display:none}
+    .switch{width:54px;height:28px;background:#232a4a;border:1px solid var(--border);border-radius:999px;position:relative;display:inline-block}
+    .switch::after{content:"";position:absolute;width:22px;height:22px;left:3px;top:2px;background:#cbd5ff;border-radius:50%;transition:.25s}
+    .toggle input:checked + .switch{background:#3a2e75}
+    .toggle input:checked + .switch::after{left:28px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <h1 class="title">Fundamentos de Seguridad & Seguridad de Aplicaciones en Transporte</h1>
+      <p class="subtitle">Guía didáctica e interactiva que resume y amplía los conceptos clave de seguridad de red, dispositivos, criptografía y AppSec (SSDLC, pruebas y gestión de vulnerabilidades), con ejemplos del sector transporte y un test autoevaluado.</p>
+      <div class="badges">
+        <span class="chip">Transporte & Logística</span>
+        <span class="chip">Redes & Dispositivos</span>
+        <span class="chip">Criptografía & Claves</span>
+        <span class="chip">SSDLC & AppSec</span>
+        <span class="chip">DevSecOps</span>
+      </div>
+      <label class="toggle" title="Modo oscuro/claro">
+        <input id="themeToggle" type="checkbox" />
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+    </header>
+
+    <main>
+      <nav class="toc" aria-label="Índice de contenidos">
+        <h3>Contenido</h3>
+        <a href="#fundamentos">1. Fundamentos de seguridad</a>
+        <a href="#red">1.1 Seguridad de red</a>
+        <a href="#firewalls">1.2 Firewalls & ACLs</a>
+        <a href="#dispositivos">1.3 Seguridad de dispositivos & políticas</a>
+        <a href="#cripto">1.4 Criptografía & gestión de claves</a>
+        <a href="#apps">2. Seguridad de las aplicaciones</a>
+        <a href="#ssdlc">2.1 Ciclo de vida seguro (SSDLC)</a>
+        <a href="#pruebas">2.2 Pruebas de seguridad</a>
+        <a href="#vulns">2.3 Gestión de vulnerabilidades</a>
+        <a href="#metodologias">2.4 Metodologías (DevSecOps, etc.)</a>
+        <a href="#quiz">Test interactivo</a>
+        <a href="#glosario">Glosario</a>
+        <a href="#enlaces">Enlaces de interés</a>
+      </nav>
+
+      <div class="content">
+        <section id="fundamentos" class="card">
+          <h2>1. Fundamentos de seguridad</h2>
+          <p>Los fundamentos de seguridad establecen las bases para proteger redes y sistemas: <strong>Confidencialidad</strong>, <strong>Integridad</strong> y <strong>Disponibilidad</strong> (CIA), apoyadas por medidas tecnológicas y procesos organizativos.</p>
+          <div class="grid two">
+            <div class="kpi"><span class="dot"></span><div><strong>Confidencialidad</strong><br/>Solo accede quien debe.</div></div>
+            <div class="kpi"><span class="dot"></span><div><strong>Integridad</strong><br/>Los datos no se alteran sin ser detectado.</div></div>
+            <div class="kpi"><span class="dot"></span><div><strong>Disponibilidad</strong><br/>Sistemas y datos cuando se necesitan.</div></div>
+            <div class="kpi"><span class="dot"></span><div><strong>Trazabilidad</strong><br/>Evidencia de quién hizo qué y cuándo.</div></div>
+          </div>
+        </section>
+
+        <section id="red" class="card">
+          <h2>1.1 Seguridad de red</h2>
+          <p>Proteger los datos en tránsito, prevenir accesos no autorizados y ataques. En transporte: sistemas de control de tráfico, SCADA, plataformas de pago, gestión de flotas.</p>
+          <details class="accordion"><summary>Idea clave</summary>
+            <div class="callout">Seguridad de red = controles perimetrales + segmentación + monitoreo + cifrado en tránsito.</div>
+          </details>
+        </section>
+
+        <section id="firewalls" class="card">
+          <h2>1.2 Firewalls & ACLs</h2>
+          <h3>Firewalls</h3>
+          <p>Actúan como barrera entre redes de distinta confianza. Filtran tráfico según reglas predefinidas.</p>
+          <div class="grid two">
+            <div class="callout"><strong>Filtrado de paquetes</strong><br/>Permite/Bloquea según IPs, puertos, protocolos.</div>
+            <div class="callout"><strong>NGFW</strong><br/>Inspección de aplicación, IDS/IPS integrado, protección avanzada.</div>
+          </div>
+          <div class="example" style="margin-top:12px">
+            <strong>Ejemplo (ciudad):</strong> Un firewall bloquea accesos de Internet a los sistemas que controlan semáforos y CCTV; solo personal autorizado accede.
+          </div>
+          <h3>Listas de Control de Acceso (ACLs)</h3>
+          <ul>
+            <li><strong>Estándar:</strong> filtra por IP de origen.</li>
+            <li><strong>Extendida:</strong> filtra por IP origen/destino, protocolo y puerto.</li>
+          </ul>
+          <div class="example"><strong>Ejemplo (empresa de transporte):</strong> ACL que permite solo a administración entrar al sistema de pagos electrónicos; otros departamentos quedan bloqueados.</div>
+          <div class="remember" style="margin-top:12px"><strong>Firewall ≠ ACL:</strong> el firewall controla la entrada/salida de la red; las ACLs gobiernan accesos granulares dentro de la red.</div>
+        </section>
+
+        <section id="dispositivos" class="card">
+          <h2>1.3 Seguridad de dispositivos & políticas</h2>
+          <h3>Seguridad de dispositivos</h3>
+          <ul>
+            <li><strong>Actualizaciones y parches</strong> para cerrar CVEs conocidas.</li>
+            <li><strong>Configuración segura</strong> (desactivar servicios innecesarios, credenciales por defecto, hardening).</li>
+            <li><strong>Control de acceso físico</strong> para evitar manipulación.</li>
+            <li><strong>Cifrado de datos en reposo</strong> para proteger ante pérdida/robo.</li>
+          </ul>
+          <h3>Políticas de seguridad</h3>
+          <div class="grid two">
+            <div class="callout"><strong>Contraseñas & MFA</strong><br/>Requisitos de robustez, rotación y autenticación múltiple.</div>
+            <div class="callout"><strong>Gestión de permisos</strong><br/>Principio de mínimo privilegio.</div>
+            <div class="callout"><strong>Política de actualizaciones</strong><br/>Ventanas de mantenimiento y priorización de parches.</div>
+            <div class="callout"><strong>Uso aceptable</strong><br/>Qué está permitido en equipos y red (BYOD, USB, apps).</div>
+          </div>
+        </section>
+
+        <section id="cripto" class="card">
+          <h2>1.4 Criptografía & gestión de claves</h2>
+          <h3>Criptografía</h3>
+          <ul>
+            <li><strong>Cifrado simétrico</strong>: misma clave para cifrar/descifrar; eficiente, reto: intercambio seguro de clave.</li>
+            <li><strong>Cifrado asimétrico</strong>: par de clave pública/privada; facilita intercambio seguro y firmas.</li>
+            <li><strong>Hashing</strong>: no cifra; genera huella para verificar integridad.</li>
+          </ul>
+          <div class="example"><strong>Ejemplo (transporte):</strong> Cifrado simétrico para almacenar datos de pasajeros y asimétrico/TLS para transacciones online.</div>
+          <h3>Gestión de claves</h3>
+          <div class="grid two">
+            <div class="callout"><strong>Generación segura</strong><br/>Fuentes aleatorias de calidad.</div>
+            <div class="callout"><strong>Almacenamiento</strong><br/>HSM o bóvedas de secretos, discos cifrados.</div>
+            <div class="callout"><strong>Rotación & Revocación</strong><br/>Cambios periódicos y reemplazo ante compromiso.</div>
+            <div class="callout"><strong>Distribución</strong><br/>Uso de TLS o cifrado asimétrico para intercambio.</div>
+          </div>
+          <div class="remember" style="margin-top:12px"><strong>Clave:</strong> una mala gestión de claves invalida incluso el mejor algoritmo.</div>
+        </section>
+
+        <section id="apps" class="card">
+          <h2>2. Seguridad de las aplicaciones</h2>
+          <p>Objetivo: que las aplicaciones de pago, control de tráfico o flotas <strong>nazcan seguras</strong> y se mantengan así durante su vida útil.</p>
+        </section>
+
+        <section id="ssdlc" class="card">
+          <h2>2.1 Ciclo de vida seguro del desarrollo (SSDLC)</h2>
+          <ol>
+            <li><strong>Requisitos & Riesgos</strong> → definir amenazas del dominio (transporte, SCADA, pagos).</li>
+            <li><strong>Diseño</strong> → arquitectura segura, modelos de amenazas, controles por defecto.</li>
+            <li><strong>Implementación</strong> → guías de codificación, SAST, dependencias confiables.</li>
+            <li><strong>Pruebas</strong> → DAST, pentesting, fuzzing, revisión de secretos.</li>
+            <li><strong>Despliegue</strong> → hardening, IaC con políticas, firmas, SBOM.</li>
+            <li><strong>Operación</strong> → monitoreo, parches, gestión de vulnerabilidades continua.</li>
+          </ol>
+          <div class="callout"><strong>Clave:</strong> integrar seguridad desde el diseño evita “parches” tardíos y reduce coste/impacto.</div>
+        </section>
+
+        <section id="pruebas" class="card">
+          <h2>2.2 Pruebas de seguridad</h2>
+          <ul>
+            <li><strong>Pentesting</strong> (incl. en SCADA) para detectar vectores reales.</li>
+            <li><strong>Análisis estático</strong> (SAST) del código y <strong>dinámico</strong> (DAST) en runtime.</li>
+            <li><strong>Pruebas de estrés</strong> en ticketing e info al pasajero para asegurar disponibilidad.</li>
+            <li><strong>Wi‑Fi / V2X</strong>: pruebas de redes inalámbricas para evitar intercepción/manipulación.</li>
+          </ul>
+        </section>
+
+        <section id="vulns" class="card">
+          <h2>2.3 Gestión de vulnerabilidades</h2>
+          <div class="grid two">
+            <div class="callout"><strong>Identificación</strong><br/>Escáneres, SBOM, auditorías, reportes CERT.</div>
+            <div class="callout"><strong>Evaluación</strong><br/>Severidad (CVSS) + impacto en operación (ej: control de tráfico).</div>
+            <div class="callout"><strong>Remediación</strong><br/>Parches/updates o mitigaciones temporales.</div>
+            <div class="callout"><strong>Monitorización continua</strong><br/>Ciclo permanente de descubrimiento y parcheo.</div>
+          </div>
+        </section>
+
+        <section id="metodologias" class="card">
+          <h2>2.4 Metodologías de desarrollo seguro (transporte)</h2>
+          <ul>
+            <li><strong>DevSecOps</strong>: seguridad integrada de punta a punta, colaboración Dev–Sec–Ops.</li>
+            <li><strong>Seguridad por diseño</strong>: controles embebidos desde el boceto.</li>
+            <li><strong>Ágil con seguridad</strong>: pruebas de seguridad en cada sprint.</li>
+            <li><strong>Revisión automatizada</strong>: pipelines con análisis y políticas de aprobación.</li>
+          </ul>
+        </section>
+
+        <section id="quiz" class="card">
+          <h2>Test interactivo</h2>
+          <p>Responde y pulsa <strong>Corregir</strong>. Obtendrás resultado y explicación.</p>
+          <div id="quizRoot" class="quiz"></div>
+          <button class="btn" id="gradeBtn">Corregir</button>
+          <button class="btn secondary" id="resetBtn">Reiniciar</button>
+          <div id="score" class="result"></div>
+        </section>
+
+        <section id="glosario" class="card">
+          <h2>Glosario express</h2>
+          <ul>
+            <li><span class="tag">SSDLC</span> Seguridad integrada en todo el ciclo de vida.</li>
+            <li><span class="tag">Firewall</span> Filtro de tráfico entre redes.</li>
+            <li><span class="tag">ACL</span> Reglas de acceso granular.</li>
+            <li><span class="tag">SAST/DAST</span> Análisis estático/dinámico de seguridad.</li>
+            <li><span class="tag">Hash</span> Huella para verificar integridad.</li>
+            <li><span class="tag">DevSecOps</span> Cultura/proceso con seguridad desde el inicio.</li>
+          </ul>
+        </section>
+
+        <section id="enlaces" class="card">
+          <h2>Enlaces de interés</h2>
+          <ul>
+            <li><a href="https://www.youtube.com/watch?v=GQvZavGi9uw" target="_blank" rel="noopener">Análisis estático de código</a></li>
+            <li><a href="https://www.incibe.es/sites/default/files/contenidos/dosieres/plan-director-seguridad/plan_director_de_seguridad_hoja_para_el_analisis_de_riesgos.xlsm" target="_blank" rel="noopener">INCIBE — Plan Director de Seguridad (hoja de riesgos)</a></li>
+            <li><a href="https://www.incibe.es/sites/default/files/paginas/publicaciones/ensi/ensi_arli-cib_03_plantilla-aarr_borrador.xlsm" target="_blank" rel="noopener">INCIBE — Análisis de Riesgos Ligero</a></li>
+            <li><a href="https://www.ewebtrans.com/blog/es/seguridad-cibernetica-en-el-de-transporte/" target="_blank" rel="noopener">Seguridad cibernética en transporte</a></li>
+            <li><a href="https://blog.optibus.com/es-es/panorama-de-la-seguridad-inform%C3%A1tica-en-el-sector-del-transporte-p%C3%BAblico" target="_blank" rel="noopener">Transporte público y ciberseguridad</a></li>
+            <li><a href="https://www.ibm.com/es-es/topics/application-security" target="_blank" rel="noopener">IBM — ¿Qué es AppSec?</a></li>
+          </ul>
+        </section>
+
+        <p class="footer">sualba.dev © 2025 •Creado para mi blog. Incluye ejemplos del sector transporte y test autoevaluado. 
+          <span class="tag">Modo oscuro</span> <span class="tag">Accesible</span> <span class="tag">Responsivo</span>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Modo oscuro/claro (persistencia simple)
+    const toggle = document.getElementById('themeToggle');
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    const stored = localStorage.getItem('theme');
+    if(stored === 'light' || (!stored && prefersLight)) document.documentElement.classList.add('light');
+    toggle.checked = document.documentElement.classList.contains('light');
+    toggle.addEventListener('change',()=>{
+      document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', document.documentElement.classList.contains('light')?'light':'dark');
+    });
+
+    // Tema claro variables
+    const lightVars = {
+      '--bg':'#f7f8ff','--panel':'#ffffff','--muted':'#4a4f6b','--text':'#0d122b','--brand':'#5b41f5','--ok':'#2e7d32','--warn':'#f9a825','--danger':'#d32f2f','--chip':'#eef1ff','--card':'#fff','--border':'#dde2ff'
+    };
+    const root = document.documentElement;
+    const applyLight = ()=>{ for(const k in lightVars){ root.style.setProperty(k, lightVars[k]); } };
+    const applyDark = ()=>{ root.removeAttribute('style'); };
+    const observer = new MutationObserver(()=>{
+      if(root.classList.contains('light')) applyLight(); else applyDark();
+    });
+    observer.observe(root,{attributes:true,attributeFilter:['class']});
+
+    // Banco de preguntas (del test realizado)
+    const QUESTIONS = [
+      {q:'El ciclo de vida seguro del desarrollo de aplicaciones implica...', a:['Integrar la seguridad en cada fase del desarrollo, desde el diseño hasta el despliegue.','Proteger los datos en bases de datos únicamente.','Usar ACLs para bloquear el acceso a la red.','Solo escribir el código fuente de las aplicaciones.'], correct:0, why:'SSDLC integra seguridad en todas las fases: diseño, desarrollo, pruebas, despliegue y mantenimiento.'},
+      {q:'El ciclo de vida seguro del desarrollo de software tiene como objetivo...', a:['Aumentar la eficiencia de las aplicaciones.','Integrar medidas de seguridad desde las primeras fases del desarrollo.','Cifrar las comunicaciones de red.','Asignar direcciones IP dinámicas.'], correct:1, why:'La seguridad se incorpora desde el inicio para minimizar vulnerabilidades.'},
+      {q:'El uso de criptografía en redes de transporte es importante porque...', a:['Monitorea el tráfico de red.','Asigna direcciones IP dinámicas.','Asegura que los datos de pasajeros y operaciones estén protegidos frente a accesos no autorizados.','Aumenta la velocidad de transmisión de los datos.'], correct:2, why:'La criptografía protege confidencialidad e integridad de datos sensibles.'},
+      {q:'La criptografía tiene como principal objetivo...', a:['Dividir la red en varias subredes.','Reducir el tiempo de transmisión de datos.','Asignar direcciones IP dinámicas a los dispositivos.','Cifrar los datos para proteger su confidencialidad.'], correct:3, why:'Cifrar datos para que solo quien tenga la clave pueda entenderlos.'},
+      {q:'La gestión de claves criptográficas es crucial porque...', a:['Monitoriza las conexiones de red.','Permite configurar las redes inalámbricas de manera segura.','Asegura que las claves utilizadas para cifrar datos estén protegidas y sean gestionadas adecuadamente.','Facilita la creación de direcciones IP estáticas.'], correct:2, why:'Incluye ciclo de vida: generación, almacenamiento, rotación, revocación.'},
+      {q:'La gestión de claves en criptografía se refiere a...', a:['Administrar las claves utilizadas para cifrar y descifrar la información.','Supervisar el tráfico en tiempo real.','Configurar routers y switches.','Asignar direcciones IP automáticamente.'], correct:0, why:'Se centra en la administración segura del ciclo de vida de las claves.'},
+      {q:'La gestión de vulnerabilidades en aplicaciones implica...', a:['Identificar, corregir y gestionar las debilidades de seguridad en las aplicaciones.','Asegurar que todos los dispositivos estén conectados a la red.','Implementar firewalls en los servidores de las aplicaciones.','Bloquear el acceso de todos los usuarios.'], correct:0, why:'Proceso de identificación, priorización, remediación y seguimiento.'},
+      {q:'La seguridad de los dispositivos en una red implica...', a:['Implementar una red inalámbrica de alta velocidad.','Proteger los dispositivos contra malware, ataques y accesos no autorizados.','Monitorizar el tráfico de red en tiempo real.','Configurar routers y switches automáticamente.'], correct:1, why:'Incluye hardening, parches, EDR/antivirus y control de acceso.'},
+      {q:'Las listas de control de acceso (ACLs) permiten...', a:['Crear redes privadas virtuales (VPN).','Controlar el acceso a servicios o recursos en función de reglas predefinidas.','Aumentar la velocidad de conexión a internet.','Bloquear el tráfico entrante basado en contenido malicioso.'], correct:1, why:'Permiten o deniegan tráfico según IPs, puertos y protocolos.'},
+      {q:'Las políticas de seguridad de dispositivos incluyen...', a:['Instrucciones para permitir cualquier tipo de conexión de red.','Directrices para proteger dispositivos contra accesos no autorizados y malware.','Monitorizar el tráfico de red.','Permitir el uso de dispositivos sin autenticación.'], correct:1, why:'Cubren contraseñas/MFA, parches, EDR, uso aceptable, cifrado, etc.'},
+      {q:'Las políticas de seguridad de dispositivos son importantes porque...', a:['Permiten la instalación de cualquier software sin restricciones.','Ayudan a monitorear la velocidad de la red.','Aseguran que todos los dispositivos estén conectados a internet.','Proporcionan directrices para proteger los dispositivos y datos de ataques.'], correct:3, why:'Establecen normas para reducir riesgos y proteger datos.'},
+      {q:'Las pruebas de seguridad de aplicaciones se realizan para...', a:['Aumentar la velocidad de las aplicaciones.','Asignar direcciones IP automáticamente.','Identificar vulnerabilidades que podrían ser explotadas por atacantes.','Monitorizar el uso de ancho de banda en la red.'], correct:2, why:'SAST, DAST y pentesting buscan vulnerabilidades antes de producción.'},
+      {q:'Una de las funciones clave de la criptografía es...', a:['Monitorizar el tráfico de red.','Garantizar la integridad y confidencialidad de la información.','Asignar direcciones IP automáticamente.','Dividir la red en varias subredes.'], correct:1, why:'Además de confidencialidad, también aporta integridad y autenticación.'},
+      {q:'Una metodología de desarrollo seguro para el sector transporte busca...', a:['Monitorear el tráfico en tiempo real.','Evitar que los empleados utilicen dispositivos móviles.','Proteger los datos y operaciones del transporte desde la fase de diseño de aplicaciones.','Aumentar el ancho de banda de las conexiones a internet.'], correct:2, why:'Seguridad por diseño aplicada a sistemas críticos del sector.'},
+      {q:'¿Cuál de las siguientes afirmaciones es cierta sobre las ACLs?', a:['Bloquean o permiten el acceso a redes y servicios según reglas específicas.','Permiten que cualquier tráfico pase sin restricciones.','Cifran los datos en tránsito.','Se usan exclusivamente en redes inalámbricas.'], correct:0, why:'No cifran; aplican reglas de permiso/denegación y no se limitan a Wi‑Fi.'},
+      {q:'¿Qué componente es esencial en la seguridad de redes?', a:['Aumentar el ancho de banda de la red.','Implementar un firewall y listas de control de acceso.','Usar cables de fibra óptica.','El uso de VLANs.'], correct:1, why:'Firewalls y ACLs son base; VLANs ayudan pero no bastan.'},
+      {q:'¿Qué es un ataque de inyección SQL en una aplicación web?', a:['Un ataque que interrumpe las comunicaciones en una red inalámbrica.','Un ataque de denegación de servicio (DDoS).','Una técnica utilizada por atacantes para ejecutar comandos maliciosos en bases de datos.','Un ataque que explota vulnerabilidades en el protocolo DHCP.'], correct:2, why:'Inserta sentencias SQL maliciosas para leer/modificar datos.'},
+      {q:'¿Qué es un firewall?', a:['Un dispositivo que permite el acceso a internet sin restricciones.','Un dispositivo que monitoriza el tráfico de la red y bloquea el tráfico no autorizado.','Un protocolo de encriptación de datos.','Un sistema que asigna direcciones IP a los dispositivos.'], correct:1, why:'Filtra tráfico según reglas; puede ser hardware o software.'},
+      {q:'¿Qué es una clave criptográfica?', a:['Un protocolo para aumentar la velocidad de transmisión de datos.','Una dirección IP asignada por DHCP.','Una secuencia de caracteres utilizada para cifrar o descifrar información.','Una regla para configurar listas de control de acceso.'], correct:2, why:'Elemento secreto que usan los algoritmos para cifrar/descifrar/firmar.'},
+      {q:'¿Qué se debe hacer después de identificar una vulnerabilidad en una aplicación?', a:['Corregirla lo antes posible y actualizar la aplicación.','Esperar a que se explote para implementar medidas.','Ignorarla si no parece crítica.','Cambiar la dirección IP de la aplicación.'], correct:0, why:'Aplicar parches/cambios y, si procede, mitigaciones temporales.'}
+    ];
+
+    const quizRoot = document.getElementById('quizRoot');
+    const buildQuiz = ()=>{
+      quizRoot.innerHTML = '';
+      QUESTIONS.forEach((item, idx)=>{
+        const q = document.createElement('div');
+        q.className = 'question';
+        q.innerHTML = `<div><strong>${idx+1}. ${item.q}</strong></div>`;
+        const ans = document.createElement('div');
+        ans.className = 'answers';
+        item.a.forEach((opt, i)=>{
+          const id = `q${idx}_a${i}`;
+          const lab = document.createElement('label');
+          lab.innerHTML = `<input type="radio" name="q${idx}" value="${i}" aria-labelledby="${id}"><span id="${id}">${String.fromCharCode(97+i)}. ${opt}</span>`;
+          ans.appendChild(lab);
+        });
+        q.appendChild(ans);
+        quizRoot.appendChild(q);
+      });
+    };
+    buildQuiz();
+
+    document.getElementById('gradeBtn').addEventListener('click', ()=>{
+      let correct = 0; const total = QUESTIONS.length;
+      const explanations = [];
+      QUESTIONS.forEach((item, idx)=>{
+        const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+        const value = selected ? parseInt(selected.value,10) : -1;
+        const labels = quizRoot.querySelectorAll(`.question:nth-child(${idx+1}) .answers label`);
+        labels.forEach((lab, i)=>{
+          lab.style.borderColor = i===item.correct ? 'var(--ok)' : 'var(--border)';
+          lab.style.background = i===item.correct ? '#0f2616' : '#0f1430';
+        });
+        if(value === item.correct) correct++;
+        explanations.push(`<li><strong>${idx+1}.</strong> ${value===item.correct? '✔️ Correcta':'❌ Incorrecta'} — <em>Respuesta:</em> ${String.fromCharCode(97+item.correct)}. ${item.a[item.correct]}<br><small>${item.why}</small></li>`);
+      });
+      const score = document.getElementById('score');
+      const pct = Math.round((correct/total)*100);
+      score.innerHTML = `<p>Resultado: <strong>${correct}/${total}</strong> (${pct}%).</p><details class="accordion" open><summary>Explicaciones</summary><ol>${explanations.join('')}</ol></details>`;
+      window.scrollTo({top:score.offsetTop-80,behavior:'smooth'});
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      buildQuiz();
+      document.getElementById('score').innerHTML='';
+    });
+  </script>
+</body>
+</html>

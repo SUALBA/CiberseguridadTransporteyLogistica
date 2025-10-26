@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shodan: El Motor de Búsqueda de Internet - Guía Interactiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0a1628;
+            --primary-light: #0f2340;
+            --accent: #ff6b6b;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --text-primary: #ffffff;
+            --text-secondary: #d0d0d0;
+            --text-tertiary: #a0a0a0;
+            --bg-card: rgba(0, 217, 255, 0.08);
+            --bg-hover: rgba(0, 217, 255, 0.12);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header y Navegación */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 22, 40, 0.95);
+            border-bottom: 2px solid var(--primary);
+            padding: 1rem 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #00b8d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Secciones principales */
+        section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            color: var(--primary);
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        /* Tabs interactivos */
+        .tabs-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--bg-card);
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: var(--primary);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Casos de uso - Tarjetas */
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .case-card {
+            background: var(--bg-card);
+            border-left: 5px solid var(--primary);
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .case-card:hover {
+            background: var(--bg-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.1);
+        }
+
+        .case-card.critical {
+            border-left-color: var(--accent);
+        }
+
+        .case-card.high {
+            border-left-color: var(--warning);
+        }
+
+        .case-card.medium {
+            border-left-color: var(--primary);
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .case-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .impact-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .impact-badge.critical {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--accent);
+        }
+
+        .impact-badge.high {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+        }
+
+        .impact-badge.medium {
+            background: rgba(0, 217, 255, 0.2);
+            color: var(--primary);
+        }
+
+        .case-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .case-details {
+            display: none;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .case-details.expanded {
+            display: block;
+        }
+
+        .case-details h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .case-details p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .case-dork {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.75rem;
+            border-left: 3px solid var(--success);
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--success);
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+            word-break: break-all;
+        }
+
+        /* Tabla de Dorks */
+        .dorks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-card);
+        }
+
+        .dorks-table th {
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--primary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .dorks-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .dorks-table tr:nth-child(even) {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .dorks-table tr:hover {
+            background: rgba(0, 217, 255, 0.08);
+        }
+
+        .dork-code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            color: var(--success);
+            border-left: 2px solid var(--success);
+            display: inline-block;
+        }
+
+        /* Sección de Defensa */
+        .defense-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .defense-item {
+            background: var(--bg-card);
+            border-left: 5px solid var(--success);
+            padding: 2rem;
+        }
+
+        .defense-item h3 {
+            color: var(--success);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .defense-item ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .defense-item li {
+            color: var(--text-secondary);
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            position: relative;
+        }
+
+        .defense-item li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Sección de Recursos */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .resource-card {
+            background: var(--bg-card);
+            border-left: 5px solid var(--primary);
+            padding: 2rem;
+        }
+
+        .resource-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .resource-card a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .resource-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Calculadora de Riesgo */
+        .risk-calculator {
+            background: var(--bg-card);
+            border-left: 5px solid var(--accent);
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .risk-calculator h3 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .calculator-input {
+            margin-bottom: 1.5rem;
+        }
+
+        .calculator-input label {
+            display: block;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .calculator-input select,
+        .calculator-input input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .calculator-input select:focus,
+        .calculator-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        .risk-result {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-left: 3px solid var(--primary);
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .risk-result.active {
+            display: block;
+        }
+
+        .risk-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .risk-score.critical {
+            color: var(--accent);
+        }
+
+        .risk-score.high {
+            color: var(--warning);
+        }
+
+        .risk-score.medium {
+            color: var(--primary);
+        }
+
+        .risk-score.low {
+            color: var(--success);
+        }
+
+        /* Botones */
+        button {
+            background: var(--primary);
+            color: var(--primary-dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        button:hover {
+            background: #00b8d4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(10, 22, 40, 0.95);
+            border-top: 2px solid var(--primary);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 217, 255, 0.2);
+            color: var(--text-tertiary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            section {
+                padding: 2rem 1rem;
+            }
+
+            section h2 {
+                font-size: 1.8rem;
+            }
+
+            .cases-grid,
+            .defense-grid,
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .case-card {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .case-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .case-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .case-card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted var(--primary);
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 0;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85rem;
+            border: 1px solid var(--primary);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Highlight */
+        .highlight {
+            background: rgba(0, 217, 255, 0.2);
+            padding: 0.2rem 0.4rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-search"></i> SHODAN
+            </div>
+            <ul class="nav-links">
+                <li><a href="#inicio" class="nav-link active">Inicio</a></li>
+                <li><a href="#casos" class="nav-link">Casos Reales</a></li>
+                <li><a href="#dorks" class="nav-link">Dorks</a></li>
+                <li><a href="#defensa" class="nav-link">Defensa</a></li>
+                <li><a href="#recursos" class="nav-link">Recursos</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <h1>SHODAN: El Ojo de la Infraestructura de Internet</h1>
+        <p>Descubre cómo funciona el motor de búsqueda más peligroso del mundo y cómo proteger tu infraestructura</p>
+        
+        <div class="hero-stats">
+            <div class="stat-box">
+                <div class="stat-number">1B+</div>
+                <div class="stat-label">Dispositivos Indexados</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">195</div>
+                <div class="stat-label">Países Mapeados</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Monitoreo Continuo</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Vulnerabilidades</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Qué es Shodan -->
+    <section id="que-es">
+        <h2>¿Qué es Shodan?</h2>
+        <div style="max-width: 900px; margin: 0 auto;">
+            <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+                Shodan es un motor de búsqueda especializado que indexa dispositivos conectados a Internet. A diferencia de Google, que lee el contenido de las páginas web, <span class="highlight">Shodan lee los "banners"</span> que los servicios envían automáticamente al conectarse. Esto revela información crítica: software, versión, configuración y, lo más importante, vulnerabilidades.
+            </p>
+            
+            <div style="background: var(--bg-card); border-left: 5px solid var(--primary); padding: 2rem; margin: 2rem 0;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">El Banner: Tu Carnet de Identidad Digital</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Cada dispositivo conectado a Internet presenta un "banner" cuando alguien intenta conectarse. Este banner es como un carnet de identidad digital que revela:
+                </p>
+                <ul style="list-style: none; color: var(--text-secondary);">
+                    <li style="padding: 0.5rem 0; padding-left: 1.5rem; position: relative;">
+                        <span style="position: absolute; left: 0; color: var(--primary);">→</span>
+                        <strong>Software:</strong> Qué programa está corriendo (Apache, Nginx, IIS, etc.)
+                    </li>
+                    <li style="padding: 0.5rem 0; padding-left: 1.5rem; position: relative;">
+                        <span style="position: absolute; left: 0; color: var(--primary);">→</span>
+                        <strong>Versión:</strong> Qué versión exacta (Apache 2.4.41, Windows Server 2019, etc.)
+                    </li>
+                    <li style="padding: 0.5rem 0; padding-left: 1.5rem; position: relative;">
+                        <span style="position: absolute; left: 0; color: var(--primary);">→</span>
+                        <strong>Configuración:</strong> Puertos abiertos, servicios activos, autenticación habilitada
+                    </li>
+                    <li style="padding: 0.5rem 0; padding-left: 1.5rem; position: relative;">
+                        <span style="position: absolute; left: 0; color: var(--primary);">→</span>
+                        <strong>Vulnerabilidades:</strong> CVEs conocidos para esa versión específica
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Casos de Uso Reales e Impactantes -->
+    <section id="casos">
+        <h2>Casos Reales: Descubrimientos Peligrosos</h2>
+        
+        <div class="tabs-container">
+            <button class="tab-button active" onclick="switchTab(event, 'todos')">Todos</button>
+            <button class="tab-button" onclick="switchTab(event, 'critico')">Crítico</button>
+            <button class="tab-button" onclick="switchTab(event, 'alto')">Alto</button>
+            <button class="tab-button" onclick="switchTab(event, 'medio')">Medio</button>
+        </div>
+
+        <div id="todos" class="tab-content active">
+            <div class="cases-grid">
+                <!-- Caso 1: Ollama -->
+                <div class="case-card critical" onclick="toggleDetails(this)">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">Servidores Ollama Expuestos</div>
+                            <div class="case-description">1,100+ servidores de IA sin protección</div>
+                        </div>
+                        <span class="impact-badge critical">CRÍTICO</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Cisco descubrió 1,100 servidores Ollama expuestos, con 20% alojando modelos de IA vulnerables a acceso no autorizado.</p>
+                    <div class="case-details">
+                        <h4>Año:</h4>
+                        <p>2025</p>
+                        <h4>Descubridor:</h4>
+                        <p>Cisco Security</p>
+                        <h4>Detalles:</h4>
+                        <p>Los servidores Ollama son plataformas para ejecutar modelos de lenguaje grandes (LLMs) localmente. La exposición permite a atacantes acceder a modelos de IA entrenados, robar datos de entrenamiento, o usar los servidores para computación maliciosa.</p>
+                        <h4>Dork de Shodan:</h4>
+                        <div class="case-dork">product:"Ollama"</div>
+                        <div class="case-dork">port:11434 "ollama"</div>
+                        <h4>Riesgo:</h4>
+                        <p>Robo de modelos de IA, acceso a datos sensibles, uso de infraestructura para ataques distribuidos.</p>
+                    </div>
+                </div>
+
+                <!-- Caso 2: Casino -->
+                <div class="case-card critical" onclick="toggleDetails(this)">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">Incidente del Casino</div>
+                            <div class="case-description">Hacked a través de termómetro de acuario</div>
+                        </div>
+                        <span class="impact-badge critical">CRÍTICO</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Hackers accedieron a la base de datos de clientes VIP de un casino a través de un termómetro inteligente en el acuario del lobby.</p>
+                    <div class="case-details">
+                        <h4>Año:</h4>
+                        <p>2018</p>
+                        <h4>Descubridor:</h4>
+                        <p>Darktrace</p>
+                        <h4>Detalles:</h4>
+                        <p>El termómetro IoT estaba conectado a Internet sin protección. Los atacantes lo comprometieron y lo usaron como punto de entrada a la red interna. Desde el termómetro, ganaron acceso a sistemas de HVAC, luego a servidores de base de datos. Robaron información de clientes VIP: nombres, direcciones, patrones de juego, información financiera.</p>
+                        <h4>Dork de Shodan:</h4>
+                        <div class="case-dork">"thermometer" "default password"</div>
+                        <div class="case-dork">"IoT" "HVAC" country:US</div>
+                        <h4>Riesgo:</h4>
+                        <p>Pérdida de datos sensibles, robo de identidad, daño reputacional masivo.</p>
+                    </div>
+                </div>
+
+                <!-- Caso 3: Agua Oldsmar -->
+                <div class="case-card critical" onclick="toggleDetails(this)">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">Intento de Envenenamiento de Agua</div>
+                            <div class="case-description">Oldsmar, Florida - 2021</div>
+                        </div>
+                        <span class="impact-badge critical">CRÍTICO</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Un atacante intentó aumentar los niveles de hidróxido de sodio a 100 veces el nivel seguro en la planta de tratamiento de agua.</p>
+                    <div class="case-details">
+                        <h4>Año:</h4>
+                        <p>2021</p>
+                        <h4>Impacto:</h4>
+                        <p>Amenaza a la salud pública</p>
+                        <h4>Detalles:</h4>
+                        <p>El atacante accedió a través de sistemas de control industrial (SCADA) expuestos en Internet. Intentó elevar los niveles de sosa cáustica a niveles letales. El operador detectó el cambio anómalo en tiempo real y lo revirtió, evitando una catástrofe.</p>
+                        <h4>Dork de Shodan:</h4>
+                        <div class="case-dork">"water treatment" SCADA</div>
+                        <div class="case-dork">product:"Siemens S7" country:US</div>
+                        <h4>Riesgo:</h4>
+                        <p>Contaminación del agua, envenenamiento masivo, pérdida de vidas.</p>
+                    </div>
+                </div>
+
+                <!-- Caso 4: SCADA/Plantas de Energía -->
+                <div class="case-card critical" onclick="toggleDetails(this)">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">Sistemas SCADA Expuestos</div>
+                            <div class="case-description">Miles de plantas de energía y refinerías</div>
+                        </div>
+                        <span class="impact-badge critical">CRÍTICO</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Washington Post (2012) y Trend Micro (2017) revelaron miles de sistemas de control industrial expuestos a Internet.</p>
+                    <div class="case-details">
+                        <h4>Año:</h4>
+                        <p>2012-2017</p>
+                        <h4>Descubridor:</h4>
+                        <p>Washington Post, Trend Micro</p>
+                        <h4>Detalles:</h4>
+                        <p>Sistemas SCADA de plantas de energía, refinerías, y distribución de gas natural expuestos. Muchos usando credenciales por defecto o sin autenticación. Estos sistemas controlan infraestructura crítica nacional.</p>
+                        <h4>Dork de Shodan:</h4>
+                        <div class="case-dork">product:"Siemens S7"</div>
+                        <div class="case-dork">"SCADA" "power plant"</div>
+                        <h4>Riesgo:</h4>
+                        <p>Cortes de energía masivos, sabotaje industrial, daño a infraestructura crítica nacional.</p>
+                    </div>
+                </div>
+
+                <!-- Caso 5: Cámaras -->
+                <div class="case-card high" onclick="toggleDetails(this)">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">Cámaras de Vigilancia Expuestas</div>
+                            <div class="case-description">Millones de feeds en vivo sin protección</div>
+                        </div>
+                        <span class="impact-badge high">ALTO</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Millones de cámaras de vigilancia expuestas sin autenticación, mostrando feeds en vivo de casas, oficinas, tiendas y hospitales.</p>
+                    <div class="case-details">
+                        <h4>Impacto:</h4>
+                        <p>Alto - Vigilancia no autorizada</p>
+                        <h4>Detalles:</h4>
+                        <p>Muchas cámaras muestran feeds en vivo sin contraseña. Atacantes pueden ver interiores de casas, oficinas, tiendas, hospitales. Esto permite vigilancia de privacidad, robo de información sensible, y planificación de ataques físicos.</p>
+                        <h4>Dork de Shodan:</h4>
+                        <div class="case-dork">has_screenshot:true</div>
+                        <div class="case-dork">http.title:"webcamXP"</div>
+                        <div class="case-dork">"IP camera" "default login"</div>
+                        <h4>Riesgo:</h4>
+                        <p>Vigilancia de privacidad, robo de información sensible, planificación de ataques físicos.</p>
+                    </div>
+                </div>
+
+                <!-- Caso 6: Bases de Datos -->
+                <div class="case-card critical" onclick="toggleDetails(this)">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">Bases de Datos Expuestas</div>
+                            <div class="case-description">Cientos de miles sin autenticación</div>
+                        </div>
+                        <span class="impact-badge critical">CRÍTICO</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Cientos de miles de bases de datos (MongoDB, MySQL, PostgreSQL) expuestas sin autenticación, conteniendo datos sensibles.</p>
+                    <div class="case-details">
+                        <h4>Impacto:</h4>
+                        <p>Crítico - Robo de datos masivo</p>
+                        <h4>Detalles:</h4>
+                        <p>Muchas contienen información personal identificable (PII), registros médicos, datos financieros. Ejemplos: bases de datos de empresas de seguros, hospitales, bancos, tiendas de retail.</p>
+                        <h4>Dork de Shodan:</h4>
+                        <div class="case-dork">product:"MongoDB"</div>
+                        <div class="case-dork">"MongoDB Server Information" port:27017</div>
+                        <div class="case-dork">"MySQL" "root@"</div>
+                        <h4>Riesgo:</h4>
+                        <p>Robo de identidad, fraude financiero, exposición de datos médicos, pérdida de privacidad.</p>
+                    </div>
+                </div>
+
+                <!-- Caso 7: RDP/SSH -->
+                <div class="case-card critical" onclick="toggleDetails(this)">
+                    <div class="case-header">
+                        <div>
+                            <div class="case-title">Acceso Remoto Expuesto</div>
+                            <div class="case-description">Millones de puertos RDP y SSH abiertos</div>
+                        </div>
+                        <span class="impact-badge critical">CRÍTICO</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Millones de puertos RDP (3389) y SSH (22) abiertos sin protección, muchos con credenciales débiles o por defecto.</p>
+                    <div class="case-details">
+                        <h4>Impacto:</h4>
+                        <p>Crítico - Acceso total a sistemas</p>
+                        <h4>Detalles:</h4>
+                        <p>Permiten acceso total a computadoras y servidores. Con credenciales débiles, los atacantes pueden obtener control completo del sistema.</p>
+                        <h4>Dork de Shodan:</h4>
+                        <div class="case-dork">port:3389 country:ES</div>
+                        <div class="case-dork">port:22 "SSH"</div>
+                        <div class="case-dork">"default password" RDP</div>
+                        <h4>Riesgo:</h4>
+                        <p>Robo de datos, instalación de malware, ransomware, acceso a redes internas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="critico" class="tab-content">
+            <p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">Mostrando solo casos de impacto CRÍTICO...</p>
+            <div class="cases-grid" id="critico-cases"></div>
+        </div>
+
+        <div id="alto" class="tab-content">
+            <p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">Mostrando solo casos de impacto ALTO...</p>
+            <div class="cases-grid" id="alto-cases"></div>
+        </div>
+
+        <div id="medio" class="tab-content">
+            <p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">Mostrando solo casos de impacto MEDIO...</p>
+            <div class="cases-grid" id="medio-cases"></div>
+        </div>
+    </section>
+
+    <!-- Dorks Prácticos -->
+    <section id="dorks">
+        <h2>Dorks Prácticos: Búsquedas Reales</h2>
+        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+            Los "dorks" son búsquedas especializadas en Shodan que combinan filtros para encontrar objetivos específicos. Aquí hay ejemplos reales que los atacantes usan.
+        </p>
+
+        <table class="dorks-table">
+            <thead>
+                <tr>
+                    <th>Dork (Búsqueda)</th>
+                    <th>Objetivo</th>
+                    <th>Riesgo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="dork-code">port:3389 country:ES</span></td>
+                    <td>Servidores RDP expuestos en España</td>
+                    <td><span style="color: var(--accent);">CRÍTICO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">http.title:"VNC Desktop" authentication disabled</span></td>
+                    <td>VNC sin contraseña (acceso inmediato)</td>
+                    <td><span style="color: var(--accent);">CRÍTICO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">has_screenshot:true country:CO</span></td>
+                    <td>Dispositivos con capturas de pantalla visibles</td>
+                    <td><span style="color: var(--warning);">ALTO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">product:"MongoDB" -authentication</span></td>
+                    <td>Bases de datos MongoDB sin autenticación</td>
+                    <td><span style="color: var(--accent);">CRÍTICO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">product:"Apache" version:"2.2.8"</span></td>
+                    <td>Servidores Apache antiguos y vulnerables</td>
+                    <td><span style="color: var(--warning);">ALTO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">ssl.cert.expired:"true"</span></td>
+                    <td>Certificados SSL expirados (descuido)</td>
+                    <td><span style="color: var(--warning);">ALTO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">http.component:"Drupal" vuln:"CVE-2018-7600"</span></td>
+                    <td>Sitios Drupal vulnerables a CVE específico</td>
+                    <td><span style="color: var(--warning);">ALTO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">product:"Siemens S7" country:US</span></td>
+                    <td>Sistemas SCADA de Siemens en USA</td>
+                    <td><span style="color: var(--accent);">CRÍTICO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">asn:"AS15169" http.title:"Index of /"</span></td>
+                    <td>Directorios abiertos en infraestructura de Google</td>
+                    <td><span style="color: var(--warning);">ALTO</span></td>
+                </tr>
+                <tr>
+                    <td><span class="dork-code">org:"Compañía Eléctrica ABC" product:"Siemens"</span></td>
+                    <td>Sistemas SCADA de una compañía específica</td>
+                    <td><span style="color: var(--accent);">CRÍTICO</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Defensa -->
+    <section id="defensa">
+        <h2>Cómo Defenderse de Shodan</h2>
+        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 3rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+            Si Shodan no puede verte, los atacantes tampoco. Aquí están las estrategias defensivas clave.
+        </p>
+
+        <div class="defense-grid">
+            <div class="defense-item">
+                <h3><i class="fas fa-shield-alt"></i> Firewall y Filtrado</h3>
+                <ul>
+                    <li>Configura el firewall en modo "bloquear todo, permitir solo lo necesario"</li>
+                    <li>Elimina o vacía la tabla de Port Forwarding innecesario</li>
+                    <li>Deshabilita servicios innecesarios (FTP, Telnet, SSH público)</li>
+                    <li>Implementa segmentación de red</li>
+                </ul>
+            </div>
+
+            <div class="defense-item">
+                <h3><i class="fas fa-eye-slash"></i> Gestión de Banners</h3>
+                <ul>
+                    <li>Deshabilita la versión del servidor web en respuestas HTTP</li>
+                    <li>Oculta información de software en headers</li>
+                    <li>Usa servidores proxy o WAF para enmascarar infraestructura</li>
+                    <li>Configura respuestas genéricas en servicios</li>
+                </ul>
+            </div>
+
+            <div class="defense-item">
+                <h3><i class="fas fa-wrench"></i> Parcheo y Actualización</h3>
+                <ul>
+                    <li>Implementa un plan de parcheo regular y automatizado</li>
+                    <li>Monitorea vulnerabilidades conocidas (CVEs)</li>
+                    <li>Usa Shodan para auditar tu propia infraestructura</li>
+                    <li>Mantén un inventario actualizado de software</li>
+                </ul>
+            </div>
+
+            <div class="defense-item">
+                <h3><i class="fas fa-lock"></i> Autenticación Fuerte</h3>
+                <ul>
+                    <li>Cambia todas las credenciales por defecto inmediatamente</li>
+                    <li>Usa contraseñas fuertes (mínimo 16 caracteres)</li>
+                    <li>Implementa 2FA en servicios críticos</li>
+                    <li>Deshabilita acceso anónimo en todos los servicios</li>
+                </ul>
+            </div>
+
+            <div class="defense-item">
+                <h3><i class="fas fa-search"></i> Auditoría Continua</h3>
+                <ul>
+                    <li>Usa Shodan para auditar tu infraestructura regularmente</li>
+                    <li>Implementa monitoreo de cambios en configuración</li>
+                    <li>Realiza penetration testing periódico</li>
+                    <li>Mantén logs de acceso y cambios</li>
+                </ul>
+            </div>
+
+            <div class="defense-item">
+                <h3><i class="fas fa-graduation-cap"></i> Educación y Conciencia</h3>
+                <ul>
+                    <li>Entrena a tu equipo en seguridad básica</li>
+                    <li>Establece políticas de seguridad claras</li>
+                    <li>Realiza simulacros de incidentes</li>
+                    <li>Mantente actualizado en tendencias de seguridad</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Calculadora de Riesgo -->
+        <div class="risk-calculator">
+            <h3><i class="fas fa-calculator"></i> Calculadora de Riesgo</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Evalúa el riesgo de tu infraestructura</p>
+            
+            <div class="calculator-input">
+                <label>¿Tienes firewall configurado?</label>
+                <select id="firewall">
+                    <option value="0">No</option>
+                    <option value="1">Sí, básico</option>
+                    <option value="2">Sí, avanzado</option>
+                </select>
+            </div>
+
+            <div class="calculator-input">
+                <label>¿Cuántos servicios están expuestos a Internet?</label>
+                <select id="services">
+                    <option value="0">Ninguno (ideal)</option>
+                    <option value="1">1-2 (aceptable)</option>
+                    <option value="2">3-5 (preocupante)</option>
+                    <option value="3">Más de 5 (crítico)</option>
+                </select>
+            </div>
+
+            <div class="calculator-input">
+                <label>¿Qué tan actualizado está tu software?</label>
+                <select id="updates">
+                    <option value="0">Muy actualizado (últimos 3 meses)</option>
+                    <option value="1">Actualizado (últimos 6 meses)</option>
+                    <option value="2">Desactualizado (más de 6 meses)</option>
+                    <option value="3">Muy desactualizado (más de 1 año)</option>
+                </select>
+            </div>
+
+            <div class="calculator-input">
+                <label>¿Usas autenticación fuerte (2FA)?</label>
+                <select id="auth">
+                    <option value="0">Sí, en todo</option>
+                    <option value="1">Sí, en servicios críticos</option>
+                    <option value="2">No, solo contraseñas</option>
+                    <option value="3">No, credenciales por defecto</option>
+                </select>
+            </div>
+
+            <button onclick="calculateRisk()">Calcular Riesgo</button>
+
+            <div id="riskResult" class="risk-result">
+                <div class="risk-score" id="riskScore">0/100</div>
+                <div id="riskLevel" style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 1rem;"></div>
+                <div id="riskRecommendation" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recursos -->
+    <section id="recursos">
+        <h2>Recursos y Referencias</h2>
+        
+        <div class="resources-grid">
+            <div class="resource-card">
+                <h3><i class="fas fa-globe"></i> Plataformas Oficiales</h3>
+                <p>Accede a Shodan directamente y explora la infraestructura de Internet:</p>
+                <ul style="list-style: none; color: var(--text-secondary);">
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://www.shodan.io/" target="_blank">Shodan.io - Motor de búsqueda</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://maps.shodan.io/" target="_blank">Shodan Maps - Visualización geográfica</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://developer.shodan.io/" target="_blank">API de Shodan - Para desarrolladores</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-book"></i> Documentación Técnica</h3>
+                <p>Aprende los filtros y técnicas avanzadas de Shodan:</p>
+                <ul style="list-style: none; color: var(--text-secondary);">
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://beta.shodan.io/search/filters" target="_blank">Filtros de Shodan - Referencia completa</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://github.com/humblelad/Shodan-Dorks" target="_blank">GitHub: Shodan Dorks - Colección de búsquedas</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://osintteam.blog/" target="_blank">OSINT Team - Guías avanzadas</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-shield-alt"></i> Guías de Seguridad</h3>
+                <p>Aprende cómo defenderse de Shodan y amenazas similares:</p>
+                <ul style="list-style: none; color: var(--text-secondary);">
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://www.cisa.gov/" target="_blank">CISA - Agencia de Ciberseguridad USA</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://www.sans.org/" target="_blank">SANS - Instituto de Seguridad</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://www.owasp.org/" target="_blank">OWASP - Seguridad de aplicaciones</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="resource-card">
+                <h3><i class="fas fa-users"></i> Comunidades</h3>
+                <p>Conecta con otros profesionales de seguridad:</p>
+                <ul style="list-style: none; color: var(--text-secondary);">
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://www.reddit.com/r/cybersecurity/" target="_blank">Reddit: r/cybersecurity</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://www.hackthebox.com/" target="_blank">HackTheBox - Plataforma de práctica</a>
+                    </li>
+                    <li style="margin: 0.5rem 0;">
+                        <a href="https://tryhackme.com/" target="_blank">TryHackMe - Laboratorios interactivos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Sobre Shodan</h3>
+                <ul>
+                    <li><a href="https://www.shodan.io/" target="_blank">Sitio Oficial</a></li>
+                    <li><a href="https://www.shodan.io/about" target="_blank">Acerca de</a></li>
+                    <li><a href="https://www.shodan.io/pricing" target="_blank">Precios</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Seguridad</h3>
+                <ul>
+                    <li><a href="https://www.cisa.gov/" target="_blank">CISA</a></li>
+                    <li><a href="https://www.sans.org/" target="_blank">SANS</a></li>
+                    <li><a href="https://www.owasp.org/" target="_blank">OWASP</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Educación</h3>
+                <ul>
+                    <li><a href="https://www.hackthebox.com/" target="_blank">HackTheBox</a></li>
+                    <li><a href="https://tryhackme.com/" target="_blank">TryHackMe</a></li>
+                    <li><a href="https://www.coursera.org/" target="_blank">Coursera</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Ética y Responsabilidad</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
+                    Esta guía es solo para propósitos educativos. El uso no autorizado de Shodan para acceder, escanear o atacar sistemas que no te pertenecen es ilegal. Solo mira, no toques.
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Shodan Interactive Guide. Creado por sualba @2025 para educación en ciberseguridad.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navegación
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Tabs
+        function switchTab(event, tabName) {
+            event.preventDefault();
+            
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Desactivar todos los botones
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar tab seleccionado
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Toggle detalles de casos
+        function toggleDetails(element) {
+            const details = element.querySelector('.case-details');
+            details.classList.toggle('expanded');
+        }
+
+        // Calculadora de riesgo
+        function calculateRisk() {
+            const firewall = parseInt(document.getElementById('firewall').value);
+            const services = parseInt(document.getElementById('services').value);
+            const updates = parseInt(document.getElementById('updates').value);
+            const auth = parseInt(document.getElementById('auth').value);
+            
+            // Calcular puntuación (0-100)
+            const riskScore = (firewall * 10 + services * 20 + updates * 20 + auth * 20);
+            const score = 100 - riskScore;
+            
+            const resultDiv = document.getElementById('riskResult');
+            const scoreDiv = document.getElementById('riskScore');
+            const levelDiv = document.getElementById('riskLevel');
+            const recommendationDiv = document.getElementById('riskRecommendation');
+            
+            scoreDiv.textContent = score + '/100';
+            
+            let level, recommendation, className;
+            
+            if (score >= 80) {
+                level = '✓ BAJO RIESGO';
+                className = 'low';
+                recommendation = 'Tu infraestructura está bien protegida. Continúa con el monitoreo regular y mantén los sistemas actualizados.';
+            } else if (score >= 60) {
+                level = '⚠ RIESGO MODERADO';
+                className = 'medium';
+                recommendation = 'Tu infraestructura tiene algunas vulnerabilidades. Considera implementar las defensas recomendadas, especialmente en firewall y autenticación.';
+            } else if (score >= 40) {
+                level = '⚠ RIESGO ALTO';
+                className = 'high';
+                recommendation = 'Tu infraestructura está significativamente expuesta. Implementa inmediatamente las estrategias defensivas: firewall, parcheo y autenticación fuerte.';
+            } else {
+                level = '✗ RIESGO CRÍTICO';
+                className = 'critical';
+                recommendation = 'Tu infraestructura está en peligro crítico. Toma medidas inmediatas: implementa firewall, actualiza software, cambia credenciales por defecto y habilita 2FA.';
+            }
+            
+            scoreDiv.className = 'risk-score ' + className;
+            levelDiv.textContent = level;
+            recommendationDiv.textContent = recommendation;
+            resultDiv.classList.add('active');
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
