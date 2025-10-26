@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Profesional: Automatización y Protección contra Ataques - Módulo 6</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-card: #252b3b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --primary: #64ffda;
+            --primary-dark: #4fd1c5;
+            --accent: #f97316;
+            --border: #334155;
+            --border-hover: #475569;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                padding: 0 2rem;
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 4rem;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .nav-logo svg {
+            width: 2rem;
+            height: 2rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: none;
+            gap: 0.25rem;
+        }
+
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding-top: 8rem;
+            padding-bottom: 5rem;
+            background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 9999px;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--primary);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--text-primary), var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @media (min-width: 768px) {
+            .hero h1 {
+                font-size: 3.75rem;
+            }
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 42rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+
+        /* Section */
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-alt {
+            background-color: var(--bg-secondary);
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+            scroll-margin-top: 5rem;
+        }
+
+        .section-header-line {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-header-bar {
+            height: 0.25rem;
+            width: 3rem;
+            background-color: var(--primary);
+            border-radius: 9999px;
+        }
+
+        .section-header h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+        }
+
+        .section-header p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 48rem;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 20px 25px -5px rgba(100, 255, 218, 0.1);
+        }
+
+        .card-accent {
+            border-color: rgba(249, 115, 22, 0.3);
+            background-color: rgba(249, 115, 22, 0.05);
+        }
+
+        .card-accent:hover {
+            border-color: var(--accent);
+        }
+
+        .card-warning {
+            border-color: rgba(239, 68, 68, 0.3);
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            padding: 0.75rem;
+            background-color: var(--bg-secondary);
+            border-radius: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .card-icon svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--primary);
+        }
+
+        .card-accent .card-icon svg {
+            color: var(--accent);
+        }
+
+        .card-warning .card-icon svg {
+            color: #ef4444;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .card-content {
+            color: var(--text-secondary);
+            line-height: 1.75;
+        }
+
+        .card-content p {
+            margin-bottom: 1rem;
+        }
+
+        .card-content strong {
+            color: var(--text-primary);
+        }
+
+        .info-box {
+            background-color: rgba(100, 255, 218, 0.05);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .info-box h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box ul, .info-box ol {
+            margin-left: 1.5rem;
+        }
+
+        .info-box li {
+            margin: 0.5rem 0;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background-color: var(--bg-card);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        /* Glossary */
+        .search-box {
+            position: relative;
+            max-width: 42rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.25rem;
+            height: 1.25rem;
+            color: var(--text-muted);
+        }
+
+        .glossary-item {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .glossary-item:hover {
+            border-color: var(--primary);
+        }
+
+        .glossary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .glossary-term {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .glossary-category {
+            padding: 0.25rem 0.75rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        /* Quiz */
+        .quiz-question {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-question h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quiz-option {
+            padding: 1rem;
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(100, 255, 218, 0.1);
+        }
+
+        .quiz-option.correct {
+            border-color: #22c55e;
+            background-color: rgba(34, 197, 94, 0.1);
+        }
+
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .option-letter {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            background-color: var(--primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(100, 255, 218, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 3rem 0;
+        }
+
+        .footer-grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .footer-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .footer-section h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin: 0.5rem 0;
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Utility */
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-8 { margin-top: 2rem; }
+        .text-center { text-align: center; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span class="hidden-mobile">Módulo 6: Ciberseguridad</span>
+                    <span class="visible-mobile">M6</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#intro" class="nav-link">Introducción</a>
+                    <a href="#automatizacion" class="nav-link">Automatización</a>
+                    <a href="#ataques" class="nav-link">Ataques</a>
+                    <a href="#proteccion" class="nav-link">Protección</a>
+                    <a href="#respuesta" class="nav-link">Respuesta</a>
+                    <a href="#glosario" class="nav-link">Glosario</a>
+                    <a href="#evaluacion" class="nav-link">Evaluación</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>Módulo 6 - Ciberseguridad</span>
+            </div>
+            <h1>Automatización y Protección contra Ataques</h1>
+            <p>Guía profesional diseñada para estudiantes expertos en ciberseguridad del sector transporte. Domina las tecnologías avanzadas de automatización y protección de infraestructuras críticas.</p>
+            <div class="badge-group">
+                <span class="badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    Automatización
+                </span>
+                <span class="badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Protección
+                </span>
+                <span class="badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Respuesta a Incidentes
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Introducción -->
+    <section id="intro">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-header-line">
+                    <div class="section-header-bar"></div>
+                    <h2>Introducción</h2>
+                </div>
+                <p>Contexto y objetivos del módulo de automatización y protección contra ataques cibernéticos</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="card-title">Objetivos de Aprendizaje</h3>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 0.75rem;">✓ Comprender los fundamentos de la automatización de redes y su aplicación en el sector transporte</li>
+                            <li style="margin-bottom: 0.75rem;">✓ Identificar y analizar los principales tipos de ataques cibernéticos que afectan infraestructuras críticas</li>
+                            <li style="margin-bottom: 0.75rem;">✓ Dominar las tecnologías avanzadas de protección contra amenazas cibernéticas</li>
+                            <li>✓ Desarrollar e implementar planes efectivos de respuesta a incidentes de seguridad</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card card-accent">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="card-title">Importancia en el Sector Transporte</h3>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <p>La protección contra ciberataques en el sector transporte es fundamental para garantizar la seguridad de las infraestructuras y la continuidad de los servicios. Las redes de transporte gestionan sistemas críticos como el control de tráfico aéreo, ferroviario y marítimo, así como plataformas de gestión de pasajeros y reservas.</p>
+                        <p>Implementar una <strong>defensa en profundidad</strong>, junto con tecnologías avanzadas como NGFW, VPNs y sistemas de prevención de ataques DDoS, es clave para garantizar que los sistemas críticos operen de manera segura y resiliente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parte I: Automatización -->
+    <section id="automatizacion" class="section-alt">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-header-line">
+                    <div class="section-header-bar"></div>
+                    <h2>Parte I: Automatización de Redes</h2>
+                </div>
+                <p>Optimización y simplificación de la gestión de infraestructuras de red mediante automatización</p>
+            </div>
+
+            <div class="card mb-8">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="card-title">Automatización de Redes</h3>
+                        <p class="card-description">Fundamentos y beneficios</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <p>La <strong>automatización de redes</strong> es el proceso mediante el cual las tareas de configuración, gestión y operación de una red se ejecutan automáticamente, reduciendo el error humano y mejorando la eficiencia operativa.</p>
+                    <div class="info-box">
+                        <h4>Beneficios Clave:</h4>
+                        <ul>
+                            <li>Reducción significativa de errores humanos en configuraciones</li>
+                            <li>Mejora de la eficiencia operativa y reducción de tiempos de respuesta</li>
+                            <li>Gestión efectiva de sistemas complejos a gran escala</li>
+                            <li>Consistencia en la aplicación de políticas de seguridad</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scripting - Sección Ampliada -->
+            <div class="card card-accent mb-8">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="card-title">Scripting en Redes</h3>
+                        <p class="card-description">Automatización mediante programación - Sección Ampliada</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <p>El <strong>scripting en redes</strong> es una técnica fundamental que utiliza lenguajes de programación para automatizar tareas repetitivas, configurar dispositivos y responder automáticamente ante eventos de red. Esta práctica es esencial para la gestión eficiente de infraestructuras modernas.</p>
+                    
+                    <div class="info-box">
+                        <h4>Lenguajes de Scripting Más Utilizados</h4>
+                        
+                        <div style="margin-top: 1rem;">
+                            <h5 style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">Python</h5>
+                            <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">El lenguaje más popular para automatización de redes debido a su sintaxis clara y amplio ecosistema de bibliotecas.</p>
+                            <div class="code-block"># Ejemplo: Configurar múltiples switches
+import netmiko
+
+for switch in switches:
+    connection = netmiko.ConnectHandler(**switch)
+    connection.send_config_set(config_commands)
+    connection.disconnect()</div>
+                            <p style="font-size: 0.75rem;"><strong>Bibliotecas clave:</strong> Netmiko, Paramiko, NAPALM, Nornir</p>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <h5 style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">Bash/Shell</h5>
+                            <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">Ideal para automatización rápida en sistemas Linux/Unix y tareas de administración de servidores.</p>
+                            <div class="code-block">#!/bin/bash
+# Backup automático de configuraciones
+for router in ${ROUTERS[@]}; do
+    ssh admin@$router "show running-config" > backup_$router.txt
+done</div>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <h5 style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">PowerShell</h5>
+                            <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">Potente para entornos Windows y automatización de Active Directory, DNS y DHCP.</p>
+                            <div class="code-block"># Gestión de usuarios en AD
+Get-ADUser -Filter * | Where-Object {
+    $_.LastLogonDate -lt (Get-Date).AddDays(-90)
+} | Disable-ADAccount</div>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 1rem;">
+                        <h4>Casos de Uso Prácticos en el Sector Transporte</h4>
+                        <ul>
+                            <li><strong>Configuración Masiva de Dispositivos:</strong> Automatizar la configuración de cientos de switches y routers en estaciones de tren o aeropuertos, aplicando políticas de seguridad uniformes.</li>
+                            <li><strong>Monitoreo de Tráfico:</strong> Scripts que analizan logs en tiempo real para detectar patrones anómalos de tráfico que puedan indicar un ataque DDoS.</li>
+                            <li><strong>Backup Automatizado:</strong> Programar backups diarios de configuraciones de dispositivos críticos (firewalls, routers SCADA) con versionado automático.</li>
+                            <li><strong>Respuesta Automática a Incidentes:</strong> Scripts que detectan intentos de acceso no autorizado y automáticamente bloquean IPs sospechosas o aíslan segmentos de red.</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 1rem;">
+                        <h4>Mejores Prácticas</h4>
+                        <ul>
+                            <li><strong>Control de versiones:</strong> Utilizar Git para mantener historial de cambios en scripts y facilitar la colaboración.</li>
+                            <li><strong>Logging y auditoría:</strong> Registrar todas las acciones automatizadas para trazabilidad y cumplimiento normativo.</li>
+                            <li><strong>Manejo de errores:</strong> Implementar try-catch y validaciones para evitar interrupciones en producción.</li>
+                            <li><strong>Seguridad de credenciales:</strong> Nunca hardcodear contraseñas; usar vaults (HashiCorp Vault, AWS Secrets Manager).</li>
+                            <li><strong>Testing en entornos de desarrollo:</strong> Probar scripts exhaustivamente antes de ejecutarlos en producción.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: var(--text-secondary); margin-top: 3rem; font-style: italic;">
+                Continúa leyendo para explorar los tipos de ataques cibernéticos, tecnologías de protección y planes de respuesta a incidentes...
+            </p>
+        </div>
+    </section>
+
+    <!-- Glosario -->
+    <section id="glosario">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-header-line">
+                    <div class="section-header-bar"></div>
+                    <h2>Glosario Interactivo</h2>
+                </div>
+                <p>Términos clave de ciberseguridad con definiciones detalladas</p>
+            </div>
+
+            <div class="search-box">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="glossarySearch" placeholder="Buscar términos..." onkeyup="filterGlossary()">
+            </div>
+
+            <div id="glossaryContainer">
+                <div class="glossary-item" data-term="api" data-category="automatización">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">API (Application Programming Interface)</h3>
+                        <span class="glossary-category">Automatización</span>
+                    </div>
+                    <p class="card-content">Conjunto de reglas y definiciones que permite a diferentes aplicaciones o sistemas comunicarse entre sí, facilitando la automatización de procesos y la integración de redes.</p>
+                </div>
+
+                <div class="glossary-item" data-term="automatización" data-category="automatización">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Automatización de Redes</h3>
+                        <span class="glossary-category">Automatización</span>
+                    </div>
+                    <p class="card-content">Proceso mediante el cual las tareas de configuración, gestión y operación de una red se ejecutan automáticamente, reduciendo el error humano y mejorando la eficiencia.</p>
+                </div>
+
+                <div class="glossary-item" data-term="fuerza bruta" data-category="ataques">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Ataque de Fuerza Bruta</h3>
+                        <span class="glossary-category">Ataques</span>
+                    </div>
+                    <p class="card-content">Técnica en la que los atacantes intentan acceder a un sistema probando múltiples combinaciones de contraseñas o claves hasta encontrar la correcta.</p>
+                </div>
+
+                <div class="glossary-item" data-term="ddos" data-category="ataques">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Denegación de Servicio Distribuida (DDoS)</h3>
+                        <span class="glossary-category">Ataques</span>
+                    </div>
+                    <p class="card-content">Ataque en el que se sobrecarga un sistema o red con tráfico malicioso, haciendo que los servicios sean inaccesibles para los usuarios legítimos.</p>
+                </div>
+
+                <div class="glossary-item" data-term="defensa" data-category="protección">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Defensa en Profundidad</h3>
+                        <span class="glossary-category">Protección</span>
+                    </div>
+                    <p class="card-content">Estrategia de seguridad que utiliza múltiples capas de protección para defender un sistema o red, de modo que, si una capa falla, otras continúan protegiendo los activos.</p>
+                </div>
+
+                <div class="glossary-item" data-term="phishing" data-category="ataques">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Phishing</h3>
+                        <span class="glossary-category">Ataques</span>
+                    </div>
+                    <p class="card-content">Ataque en el que los ciberdelincuentes intentan engañar a los usuarios para que revelen información confidencial, como contraseñas o datos financieros, a través de correos electrónicos o sitios web falsos.</p>
+                </div>
+
+                <div class="glossary-item" data-term="ransomware" data-category="ataques">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Ransomware</h3>
+                        <span class="glossary-category">Ataques</span>
+                    </div>
+                    <p class="card-content">Malware que bloquea el acceso a los sistemas o datos de una organización, exigiendo un rescate económico para restaurar el acceso.</p>
+                </div>
+
+                <div class="glossary-item" data-term="scripting" data-category="automatización">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Scripting en Redes</h3>
+                        <span class="glossary-category">Automatización</span>
+                    </div>
+                    <p class="card-content">Técnica que utiliza lenguajes de programación para automatizar tareas en redes, como la configuración de dispositivos o la respuesta automática ante eventos de red.</p>
+                </div>
+
+                <div class="glossary-item" data-term="segmentación" data-category="protección">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Segmentación de Red</h3>
+                        <span class="glossary-category">Protección</span>
+                    </div>
+                    <p class="card-content">Técnica que divide una red en segmentos más pequeños y aislados, de manera que, si una parte es comprometida, el resto de la red no se vea afectada.</p>
+                </div>
+
+                <div class="glossary-item" data-term="ids" data-category="protección">
+                    <div class="glossary-header">
+                        <h3 class="glossary-term">Tecnología de Detección de Intrusiones (IDS)</h3>
+                        <span class="glossary-category">Protección</span>
+                    </div>
+                    <p class="card-content">Sistema que monitorea la red o sistemas en busca de actividades maliciosas o violaciones de políticas de seguridad, alertando a los administradores cuando se detecta un posible ataque.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluación -->
+    <section id="evaluacion" class="section-alt">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-header-line">
+                    <div class="section-header-bar"></div>
+                    <h2>Evaluación del Conocimiento</h2>
+                </div>
+                <p>Pon a prueba tu comprensión de los conceptos del módulo</p>
+            </div>
+
+            <div style="max-width: 56rem; margin: 0 auto;">
+                <div id="quizContainer">
+                    <!-- Quiz questions will be rendered here -->
+                </div>
+                <div id="quizActions" class="text-center mt-8">
+                    <button class="btn" onclick="submitQuiz()" id="submitBtn">Enviar Respuestas</button>
+                    <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">Responde todas las preguntas antes de enviar</p>
+                </div>
+                <div id="quizResult" class="hidden text-center mt-8"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--primary);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span style="font-weight: 700; font-size: 1.125rem;">Módulo 6</span>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">Guía profesional de automatización y protección contra ataques cibernéticos para el sector transporte.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Recursos Adicionales</h4>
+                    <ul>
+                        <li>• NIST Cybersecurity Framework</li>
+                        <li>• ISO/IEC 27001</li>
+                        <li>• CIS Controls</li>
+                        <li>• OWASP Top 10</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Certificaciones</h4>
+                    <ul>
+                        <li>• CEH (Certified Ethical Hacker)</li>
+                        <li>• CISSP (Certified Information Systems Security Professional)</li>
+                        <li>• GIAC Security Essentials</li>
+                        <li>• CompTIA Security+</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Módulo 6: Automatización y Protección contra Ataques - Material Didáctico de Ciberseguridad</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Glossary filter
+        function filterGlossary() {
+            const searchTerm = document.getElementById('glossarySearch').value.toLowerCase();
+            const items = document.querySelectorAll('.glossary-item');
+            
+            items.forEach(item => {
+                const term = item.getAttribute('data-term');
+                const category = item.getAttribute('data-category');
+                const text = item.textContent.toLowerCase();
+                
+                if (text.includes(searchTerm) || term.includes(searchTerm) || category.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Quiz data
+        const quizQuestions = [
+            {
+                id: 1,
+                question: "El monitoreo continuo de redes es importante porque...",
+                options: [
+                    { id: "a", text: "Aumenta la velocidad de la red." },
+                    { id: "b", text: "Monitorea el consumo de energía en los dispositivos." },
+                    { id: "c", text: "Asigna direcciones IP dinámicas automáticamente." },
+                    { id: "d", text: "Permite detectar y responder a amenazas en tiempo real." }
+                ],
+                correct: "d"
+            },
+            {
+                id: 2,
+                question: "El objetivo de un túnel VPN en una red de transporte es...",
+                options: [
+                    { id: "a", text: "Dividir una red en subredes más pequeñas." },
+                    { id: "b", text: "Cifrar las comunicaciones entre redes a través de internet." },
+                    { id: "c", text: "Aumentar la velocidad de transmisión de datos." },
+                    { id: "d", text: "Monitorear el tráfico de red en tiempo real." }
+                ],
+                correct: "b"
+            },
+            {
+                id: 3,
+                question: "El uso de scripts en redes ayuda a...",
+                options: [
+                    { id: "a", text: "Monitorear el tráfico de red en tiempo real." },
+                    { id: "b", text: "Automatizar tareas repetitivas como la configuración de routers y switches." },
+                    { id: "c", text: "Aumentar la seguridad de la red mediante el cifrado de todos los datos." },
+                    { id: "d", text: "Crear direcciones IP estáticas para los dispositivos." }
+                ],
+                correct: "b"
+            },
+            {
+                id: 4,
+                question: "Un ataque de fuerza bruta es...",
+                options: [
+                    { id: "a", text: "Un ataque que cifra los archivos de una red." },
+                    { id: "b", text: "Un intento de sobrecargar una red con tráfico malicioso." },
+                    { id: "c", text: "Un ataque en el que se prueban múltiples combinaciones de contraseñas para acceder a un sistema." },
+                    { id: "d", text: "Un tipo de ataque que explota vulnerabilidades en el hardware." }
+                ],
+                correct: "c"
+            },
+            {
+                id: 5,
+                question: "¿Qué es la defensa en profundidad?",
+                options: [
+                    { id: "a", text: "La implementación de una única medida de seguridad." },
+                    { id: "b", text: "El uso de múltiples capas de seguridad para proteger una red o sistema." },
+                    { id: "c", text: "Una herramienta de monitoreo de red." },
+                    { id: "d", text: "Una técnica para aumentar la velocidad de transmisión de datos." }
+                ],
+                correct: "b"
+            },
+            {
+                id: 6,
+                question: "¿Qué es un ransomware?",
+                options: [
+                    { id: "a", text: "Un ataque que se dirige a vulnerabilidades en el hardware." },
+                    { id: "b", text: "Un sistema para monitorear el tráfico en redes locales." },
+                    { id: "c", text: "Un tipo de software que cifra los datos de un sistema y exige un rescate para desbloquearlos." },
+                    { id: "d", text: "Un protocolo de red para asignar direcciones IP dinámicas." }
+                ],
+                correct: "c"
+            }
+        ];
+
+        let quizAnswers = {};
+        let quizSubmitted = false;
+
+        // Render quiz
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = quizQuestions.map(q => `
+                <div class="quiz-question">
+                    <h3>Pregunta ${q.id}: ${q.question}</h3>
+                    <div class="quiz-options">
+                        ${q.options.map(opt => `
+                            <div class="quiz-option" data-question="${q.id}" data-option="${opt.id}" onclick="selectOption(${q.id}, '${opt.id}')">
+                                <span class="option-letter">${opt.id})</span>
+                                <span style="flex: 1;">${opt.text}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectOption(questionId, optionId) {
+            if (quizSubmitted) return;
+            
+            quizAnswers[questionId] = optionId;
+            
+            // Update UI
+            const options = document.querySelectorAll(`[data-question="${questionId}"]`);
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.getAttribute('data-option') === optionId) {
+                    opt.classList.add('selected');
+                }
+            });
+
+            // Enable submit button if all answered
+            const submitBtn = document.getElementById('submitBtn');
+            if (Object.keys(quizAnswers).length === quizQuestions.length) {
+                submitBtn.disabled = false;
+            }
+        }
+
+        function submitQuiz() {
+            if (quizSubmitted) return;
+            
+            quizSubmitted = true;
+            let score = 0;
+
+            quizQuestions.forEach(q => {
+                const userAnswer = quizAnswers[q.id];
+                const isCorrect = userAnswer === q.correct;
+                if (isCorrect) score++;
+
+                const options = document.querySelectorAll(`[data-question="${q.id}"]`);
+                options.forEach(opt => {
+                    const optId = opt.getAttribute('data-option');
+                    if (optId === userAnswer) {
+                        opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    }
+                });
+            });
+
+            document.getElementById('quizActions').innerHTML = `
+                <button class="btn btn-outline" onclick="resetQuiz()">Reiniciar Evaluación</button>
+            `;
+
+            document.getElementById('quizResult').innerHTML = `
+                <div style="background-color: var(--bg-card); border: 2px solid var(--primary); border-radius: 0.75rem; padding: 2rem; display: inline-block;">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Resultado</h3>
+                    <p style="font-size: 2rem; font-weight: 700; color: var(--primary);">${score} / ${quizQuestions.length}</p>
+                    <p style="color: var(--text-secondary);">respuestas correctas</p>
+                </div>
+            `;
+            document.getElementById('quizResult').classList.remove('hidden');
+        }
+
+        function resetQuiz() {
+            quizAnswers = {};
+            quizSubmitted = false;
+            renderQuiz();
+            document.getElementById('quizActions').innerHTML = `
+                <button class="btn" onclick="submitQuiz()" id="submitBtn">Enviar Respuestas</button>
+                <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">Responde todas las preguntas antes de enviar</p>
+            `;
+            document.getElementById('quizResult').classList.add('hidden');
+        }
+
+        // Initialize
+        renderQuiz();
+    </script>
+</body>
+</html>

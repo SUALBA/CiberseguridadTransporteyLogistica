@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PRI — Operador de Transporte Público (v3.0)</title>
+<meta name="description" content="Plan de Respuesta a Incidentes (PRI) corporativo para operador de transporte público: buses y trenes.">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --card: #121821;
+    --text: #e6edf3;
+    --muted: #9db1c7;
+    --accent: #64b5f6;
+    --accent-2: #86efac;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --ok: #22c55e;
+    --border: #213244;
+    --code: #0b1220;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(11,15,20,0.9), rgba(11,15,20,0.5));
+    border-bottom: 1px solid var(--border);
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .title {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 12px; padding: 4px 10px; border: 1px solid var(--border);
+    border-radius: 100px; color: var(--muted); background: #0e1520;
+  }
+  .actions {
+    display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap;
+  }
+  button, .btn {
+    cursor: pointer; border: 1px solid var(--border); color: var(--text);
+    background: #0e1520; border-radius: 10px; padding: 8px 12px; font-size: 14px;
+  }
+  button:hover, .btn:hover { border-color: var(--accent); }
+  main { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+  nav { position: sticky; top: 68px; height: calc(100vh - 80px); overflow: auto; padding-right: 8px; }
+  nav .card { background: var(--card); border:1px solid var(--border); border-radius: 14px; padding: 16px; }
+  nav h3 { margin-top: 0; font-size: 14px; color: var(--muted); }
+  nav a {
+    display: block; padding: 6px 8px; border-radius: 8px; color: var(--text); text-decoration: none; font-size: 14px;
+  }
+  nav a:hover { background: #0e1622; color: var(--accent); }
+  section.card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin-bottom: 18px;
+  }
+  h1, h2, h3 { line-height: 1.25; }
+  h1 { font-size: 28px; margin: 12px 0; }
+  h2 { font-size: 22px; margin: 18px 0 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
+  h3 { font-size: 18px; margin: 16px 0 8px; color: var(--accent); }
+  .kv { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top:10px; }
+  .kv .k { font-size: 12px; color: var(--muted);}
+  .kv .v { font-size: 14px; }
+  .callout {
+    border-left: 4px solid var(--accent); padding: 10px 12px; background: #0e1622; border-radius: 10px;
+  }
+  .callout.warn { border-left-color: var(--warning); }
+  .callout.danger { border-left-color: var(--danger); }
+  .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  details { border: 1px dashed var(--border); border-radius: 12px; padding: 10px 12px; background: #0b1420; }
+  details + details { margin-top: 10px; }
+  details[open] { background: #0d1826; }
+  summary { cursor: pointer; font-weight: 600; color: var(--accent-2); }
+  ul, ol { margin-top: 6px; }
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    background: var(--code); border:1px solid var(--border); border-radius: 10px;
+  }
+  code { padding: 2px 6px; }
+  pre { padding: 12px; overflow: auto; position: relative; }
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px; font-size: 12px; padding: 4px 8px;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border-bottom: 1px solid var(--border); padding: 8px; vertical-align: top; }
+  th { color: var(--muted); text-align: left; }
+  footer { color: var(--muted); text-align: center; padding: 24px 0; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted); font-size:12px; }
+  .ok { color: var(--ok);}
+  .warn { color: var(--warning);}
+  .danger { color: var(--danger);}
+  @media (max-width: 980px) {
+    main { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <div class="title">
+      <h1>Plan de Respuesta a Incidentes — Transporte Público</h1>
+      <span class="badge">Versión 3.0</span>
+      <span class="badge">Fecha: 2025-10-26</span>
+      <span class="badge">Clasificación: Interno</span>
+      <div class="actions">
+        <button id="toggleTOC">Mostrar/Ocultar Índice</button>
+        <button id="expandAll">Expandir todo</button>
+        <button id="collapseAll">Contraer todo</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <main>
+    <nav id="toc">
+      <div class="card">
+        <h3>Índice</h3>
+        <a href="#intro">0. Introducción ejecutiva</a>
+        <a href="#alcance">1. Alcance, principios y gobierno</a>
+        <a href="#raci">2. Organización y RACI</a>
+        <a href="#severidad">3. Severidad y activación</a>
+        <a href="#flujo">4. Flujo de respuesta</a>
+        <a href="#procedimientos">5. Procedimientos por fase</a>
+        <a href="#runbooks">6. Runbooks específicos</a>
+        <a href="#soar">7. Detección y automatización (SOAR)</a>
+        <a href="#comms">8. Comunicación y notificación</a>
+        <a href="#training">9. Formación y simulaciones</a>
+        <a href="#metrics">10. Métricas y SLA</a>
+        <a href="#annex">11. Anexos</a>
+        <a href="#version">12. Control de versiones</a>
+      </div>
+    </nav>
+
+    <div>
+      <section class="card" id="intro">
+        <h2>0. Introducción ejecutiva</h2>
+        <div class="callout">
+          La empresa opera una red multimodal de <b>autobuses y trenes</b> y mantiene tres dominios críticos:
+          <b>control de tráfico</b> (OT/SCADA), <b>pagos electrónicos</b>, y <b>plataformas de información al pasajero</b> (web, app, paneles).
+          Se han observado recientemente <b>ataques DDoS</b> contra portales/APIs y <b>campañas de phishing</b> dirigidas a empleados.
+          Este PRI define roles, procesos y <i>runbooks</i> para responder con rapidez, priorizando continuidad del servicio, seguridad de las personas y cumplimiento regulatorio.
+        </div>
+        <div class="kv">
+          <div><div class="k">Objetivo</div><div class="v">Reducir MTTD/MTTR y mantener servicios esenciales</div></div>
+          <div><div class="k">Prioridad</div><div class="v">Personas > Continuidad > Evidencia</div></div>
+          <div><div class="k">Ámbito</div><div class="v">IT | OT/SCADA | Red | Datos</div></div>
+        </div>
+      </section>
+
+      <section class="card" id="alcance">
+        <h2>1. Alcance, principios y gobierno</h2>
+        <h3>1.1 Alcance</h3>
+        <ul>
+          <li><b>IT</b>: identidad (IdP/AD, MFA), correo, web y apps, pasarela de pagos, BBDD, endpoints, DC/Nube.</li>
+          <li><b>OT</b>: SCADA/PLC/HMI, historiadores, gateways, redes industriales, estaciones y depósitos.</li>
+          <li><b>Perímetro y red</b>: WAN, VPN, NGFW, WAF/CDN, balanceadores, DNS, segmentación E–O, terceros.</li>
+          <li><b>Datos</b>: PII de pasajeros, datos de pagos, telemetría OT, logs de seguridad.</li>
+        </ul>
+        <h3>1.2 Principios</h3>
+        <ol>
+          <li><b>Seguridad de personas</b> &gt; continuidad &gt; evidencia &gt; reputación.</li>
+          <li>Defensa en profundidad y mínimo privilegio.</li>
+          <li>Tiempo es crítico: contención automatizada cuando sea seguro.</li>
+          <li>Una sola voz en comunicaciones (Legal + Dirección).</li>
+          <li>Mejora continua basada en lecciones aprendidas.</li>
+        </ol>
+        <h3>1.3 Gobierno</h3>
+        <ul>
+          <li>Propietario del PRI: <b>CISO</b> — Aprobación: <b>Comité de Dirección</b>.</li>
+          <li>Revisión semestral o tras incidentes mayores.</li>
+          <li>Repositorio con control de versiones y trazabilidad.</li>
+        </ul>
+      </section>
+
+      <section class="card" id="raci">
+        <h2>2. Organización y RACI</h2>
+        <div class="grid-2">
+          <div>
+            <table>
+              <thead><tr><th>Rol</th><th>Responsabilidades</th><th>Escalado</th></tr></thead>
+              <tbody>
+                <tr><td><b>Incident Commander (IC)</b></td><td>Dirigir respuesta, priorizar servicios</td><td>CEO/DG</td></tr>
+                <tr><td><b>Líder Técnico IT</b></td><td>Detección/contención IT, coord. SOC/DevOps</td><td>IC</td></tr>
+                <tr><td><b>Líder Técnico OT</b></td><td>Relación con Operaciones, modo manual, validación lógicas</td><td>IC</td></tr>
+                <tr><td><b>SOC Lead</b></td><td>Triage, correlación SIEM/EDR/IDS, war room</td><td>Líder IT</td></tr>
+                <tr><td><b>DFIR/Forense</b></td><td>Evidencias, análisis, cadena de custodia</td><td>IC</td></tr>
+                <tr><td><b>Plataformas (Pagos/Apps)</b></td><td>Restauración, pruebas, feature flags</td><td>IC</td></tr>
+                <tr><td><b>Red/Perímetro</b></td><td>Mitigación DDoS, WAF, DNS, NGFW</td><td>IC</td></tr>
+                <tr><td><b>Comunicaciones</b></td><td>Mensajería interna/externa, medios</td><td>Dirección</td></tr>
+                <tr><td><b>Legal/DPO</b></td><td>Regulatorio y privacidad</td><td>Dirección</td></tr>
+                <tr><td><b>Operaciones Transporte</b></td><td>Contingencias, seguridad en estaciones</td><td>Dirección</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout">
+            <b>Guardias 24/7:</b> rotación semanal; consultar Anexo G (directorio y árbol de escalado).
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="severidad">
+        <h2>3. Severidad y criterios de activación</h2>
+        <ul>
+          <li><b>Sev 1 – Crítico</b>: parada &gt; 30 min en pagos o control de tráfico; riesgo a seguridad física; exfiltración PII sensible.</li>
+          <li><b>Sev 2 – Alto</b>: DDoS severo; cifrado parcial en no críticos; cuentas privilegiadas (MFA activo).</li>
+          <li><b>Sev 3 – Medio</b>: contenido y sin afección; phishing con pocos clics, sin compromiso.</li>
+          <li><b>Sev 4 – Bajo</b>: informativo, pruebas, near-miss.</li>
+        </ul>
+        <p><span class="pill">Activación</span> El IC declara nivel, convoca war room, abre ticket IR (ID único) e inicia métricas (MTTD/MTTC/MTTR).</p>
+      </section>
+
+      <section class="card" id="flujo">
+        <h2>4. Flujo de respuesta</h2>
+        <pre><button class="copy-btn" onclick="copyPre(this)">Copiar</button>[Detección] → [Triage SOC] → [Clasificación & Severidad] → [Activación PRI]
+      ↓                    ↓
+  [Evidencias]       [War Room / RACI]
+      ↓
+[Contención inmediata] → [Contención corta] → [Erradicación] → [Recuperación]
+      ↓                                                         ↓
+ [Comunicación]                                      [Lecciones aprendidas]</pre>
+      </section>
+
+      <section class="card" id="procedimientos">
+        <h2>5. Procedimientos por fase</h2>
+
+        <details open>
+          <summary>5.1 Identificación</summary>
+          <ol>
+            <li>Detección: SIEM/EDR/IDS/WAF, proveedor DDoS, reportes de usuarios.</li>
+            <li>Triage: confirmar TP, activos afectados, alcance preliminar.</li>
+            <li>Evidencias: disco/RAM, logs, PCAP, export PLC/HMI; cadena de custodia.</li>
+            <li>Clasificación: DDoS, phishing/BEC, ransomware, intrusión OT, exfiltración, abuso API.</li>
+            <li>Severidad: aplicar matriz y registrar en ticket IR.</li>
+          </ol>
+          <ul>
+            <li class="ok">Checklist: abrir ticket, propietario, hora exacta, hash de evidencia, notificar IC/RACI.</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>5.2 Contención</summary>
+          <h3>Inmediata (0–30 min)</h3>
+          <ul>
+            <li>Aislar por EDR o VLAN cuarentena.</li>
+            <li>Bloquear IoCs en EDR, NGFW/Proxy y WAF.</li>
+            <li>Cerrar sesiones y forzar MFA/reset.</li>
+            <li>Mitigación DDoS / rate limiting; proteger APIs críticas.</li>
+            <li>Conmutar a DR/HA si procede.</li>
+          </ul>
+          <h3>Corta (30–120 min)</h3>
+          <ul>
+            <li>Microsegmentación E–O; limitar saltos administrativos.</li>
+            <li>Revocar tokens/API keys.</li>
+            <li>Elevar logging y retención temporal.</li>
+            <li>Comunicar restricciones a Operaciones/At. Cliente.</li>
+          </ul>
+          <p><span class="pill">Salida</span> N ciclos sin actividad; superficies críticas controladas; IoCs propagados.</p>
+        </details>
+
+        <details>
+          <summary>5.3 Erradicación</summary>
+          <ul>
+            <li>Limpieza de malware y artefactos (scans offline).</li>
+            <li>Parcheo y hardening.</li>
+            <li>Rotación de secretos (credenciales, claves, certificados).</li>
+            <li>OT/SCADA: validar lógicas, estaciones de ingeniería, gateways; whitelisting.</li>
+            <li>Validación en staging y evidencia de resultados.</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>5.4 Recuperación</summary>
+          <ul>
+            <li>Restauración escalonada: núcleo → periféricos → UX.</li>
+            <li>Pruebas funcionales, rendimiento, seguridad; pruebas sintéticas.</li>
+            <li>Monitoreo reforzado 72 h; plan de rollback.</li>
+            <li>Comunicación de normalización a usuarios/autoridades.</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>5.5 Lecciones aprendidas</summary>
+          <ul>
+            <li>Post-mortem ≤ 5 días; cronología, causas raíz, impactos, costes.</li>
+            <li>Acciones con dueño/fecha/KPI; seguimiento 30/60/90.</li>
+            <li>Actualizar runbooks, detecciones SIEM y controles.</li>
+            <li>Compartir IoCs con CERT/sector (si procede).</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="card" id="runbooks">
+        <h2>6. Runbooks específicos (transporte)</h2>
+
+        <details open>
+          <summary>DDoS (plataformas web, APIs y pagos)</summary>
+          <div class="grid-2">
+            <div>
+              <h3>Detección</h3>
+              <ul><li>Picos de RPS, errores 5xx, latencia alta, alertas proveedor.</li></ul>
+              <h3>Contención inmediata</h3>
+              <ul>
+                <li>Activar perfil DDoS en CDN/WAF; <code>rate-limit</code> por endpoint crítico.</li>
+                <li><code>geo-block</code> temporal si se justifica; cacheo agresivo en info al pasajero.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Contención corta</h3>
+              <ul>
+                <li>Reglas adaptativas (bot score, challenge), mTLS en APIs sensibles.</li>
+                <li>DNS failover controlado; BGP + blackholing selectivo (si aplica).</li>
+              </ul>
+              <h3>Recuperación</h3>
+              <ul><li>Normalizar reglas; validar métricas; comunicación de disponibilidad.</li></ul>
+            </div>
+          </div>
+          <p><b>KPIs</b>: tiempo a mitigación, % disponibilidad durante ataque, tiempo a normalidad.</p>
+          <div class="callout warn">Checklist: activar plan DDoS y war room, blindar <code>POST /payments/*</code> y <code>GET /info/*</code>, validar transacciones, comunicar estado.</div>
+        </details>
+
+        <details>
+          <summary>Phishing / BEC (identidad y correo)</summary>
+          <h3>Detección</h3>
+          <ul><li>CTR, reportes, impossible travel, apps OAuth anómalas.</li></ul>
+          <h3>Contención</h3>
+          <ul><li>Retirar correos, bloquear remitentes, reset + MFA, invalidar tokens, cerrar sesiones.</li></ul>
+          <h3>Erradicación</h3>
+          <ul><li>Revisar reglas de forwarding, delegaciones, OAuth apps; rotar claves de apps.</li></ul>
+          <h3>Recuperación</h3>
+          <ul><li>Formación dirigida + simulación; refuerzo de políticas.</li></ul>
+          <p><b>Evidencia</b>: cabeceras, URLs, HTML adjuntos, tokens afectados. <b>KPIs</b>: retirada, usuarios impactados, reincidencia.</p>
+        </details>
+
+        <details>
+          <summary>Ransomware (IT con riesgo de pivote a OT)</summary>
+          <ul>
+            <li>Detección: mass file rename, shadow copies, C2.</li>
+            <li>Contención: aislar; bloquear SMB/RDP/WinRM; cortar C2; deshabilitar cuentas.</li>
+            <li>Erradicación: reinstalar desde golden image; parcheo; rotar secretos; revocar certificados.</li>
+            <li>Recuperación: restaurar de backups verificados; monitor reforzado 72h.</li>
+            <li>Política de pago: no pagar salvo instrucción explícita Comité de Crisis + Legal.</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>Intrusión SCADA/PLC (control de tráfico)</summary>
+          <ul>
+            <li>Detección: lógicas alteradas; engineering station fuera de ventana; IT→OT inusual; IDS OT.</li>
+            <li>Contención: bloquear rutas a PLC; modo manual/failsafe; aislar ingeniería; restringir jump servers.</li>
+            <li>Erradicación: validar integridad; restaurar firmware y golden images; credenciales de ingeniería; whitelisting.</li>
+            <li>Recuperación: pruebas con Operaciones; retorno escalonado a automático; documentación.</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="card" id="soar">
+        <h2>7. Detección y automatización (SOAR)</h2>
+        <div class="grid-2">
+          <div>
+            <h3>Casos de uso SIEM</h3>
+            <ul>
+              <li>Beaconing HTTP(s): dominio reciente + user-agent anómalo.</li>
+              <li>Anomalía OT: programación/firmware fuera de ventana.</li>
+              <li>Exfiltración: volúmenes altos a destinos no corporativos.</li>
+              <li>Cuenta comprometida: fallos seguidos de éxito desde ASNs distintos.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Playbook tipo (SOAR)</h3>
+            <ol>
+              <li>Alerta → Enriquecer IoC</li>
+              <li>Aislar host (EDR)</li>
+              <li>Bloquear IoC (NGFW/WAF/Proxy)</li>
+              <li>Reset credenciales/tokens</li>
+              <li>Abrir ticket + war room</li>
+              <li>Checklist DFIR</li>
+            </ol>
+          </div>
+        </div>
+        <details>
+          <summary>Fragmentos pseudo-API</summary>
+          <pre><button class="copy-btn" onclick="copyPre(this)">Copiar</button>POST /waf/rules/ratelimit {endpoint, rps}
+POST /ngfw/blocklist {ip, domain}
+POST /edr/isolate {hostname}
+POST /idp/reset {user}
+POST /idp/revoke {user}</pre>
+        </details>
+      </section>
+
+      <section class="card" id="comms">
+        <h2>8. Comunicación y notificación</h2>
+        <div class="callout">
+          Veraz, proporcional y de mínimo necesario. Una sola voz (PR). Validado por Legal/Dirección. Canales: intranet, email, web de estado, atención al cliente, medios.
+        </div>
+        <details>
+          <summary>Plantillas</summary>
+          <h3>Aviso interno (empleados)</h3>
+          <pre><button class="copy-btn" onclick="copyPre(this)">Copiar</button>Detectamos un incidente en [servicio]. Medidas: [acciones]. Requerimos [cambio contraseña/MFA]. Próxima actualización a las [hh:mm].</pre>
+          <h3>Aviso a usuarios</h3>
+          <pre><button class="copy-btn" onclick="copyPre(this)">Copiar</button>Mitigamos una incidencia en [información al pasajero/pagos]. Estamos restableciendo. Actualizaciones en [URL] a las [hh:mm].</pre>
+          <h3>Notificación regulatoria</h3>
+          <pre><button class="copy-btn" onclick="copyPre(this)">Copiar</button>Descripción, alcance, datasets, medidas, contactos técnicos, IoCs y plazos de seguimiento.</pre>
+        </details>
+      </section>
+
+      <section class="card" id="training">
+        <h2>9. Formación y simulaciones</h2>
+        <ul>
+          <li>Table-top trimestral (DDoS a APIs, BEC finanzas, SCADA lógicas).</li>
+          <li>Drill técnico semestral (purple team) y validación SIEM.</li>
+          <li>Ejercicio OT anual en entorno simulado; paso a manual.</li>
+          <li>KPIs: % detecciones, tiempos de escalado, calidad de evidencias, NPS del simulacro.</li>
+        </ul>
+      </section>
+
+      <section class="card" id="metrics">
+        <h2>10. Métricas y SLA</h2>
+        <ul>
+          <li><b>Detección</b>: MTTD p50/p90, % alertas útiles, cobertura de casos de uso.</li>
+          <li><b>Respuesta</b>: MTTC/MTTR, tiempo a aislamiento, % contenciones automáticas.</li>
+          <li><b>Recuperación</b>: tiempo a servicio mínimo viable, errores post-restauración.</li>
+          <li><b>Cultura</b>: tasa de clics en phishing simulado, asistencia a formación.</li>
+        </ul>
+      </section>
+
+      <section class="card" id="annex">
+        <h2>11. Anexos</h2>
+        <ul>
+          <li>Anexo A: Checklists por fase.</li>
+          <li>Anexo B: Formulario de evidencias (hashes, custodio, hora, herramienta).</li>
+          <li>Anexo C: Matriz de severidad (impacto × probabilidad) con ejemplos sectoriales.</li>
+          <li>Anexo D: Catálogo de activos críticos IT/OT y dependencias.</li>
+          <li>Anexo E: Árbol de decisión de acceso remoto (VPN, MFA, break-glass).</li>
+          <li>Anexo F: Tabla de IoCs (formato compartible).</li>
+          <li>Anexo G: Directorio 24/7 y árbol de escalado.</li>
+          <li>Anexo H: Políticas relacionadas (backup, hardening, vulnerabilidades, retención de logs).</li>
+        </ul>
+      </section>
+
+      <section class="card" id="version">
+        <h2>12. Control de versiones</h2>
+        <ul>
+          <li><b>v3.0 (actual)</b>: corporativa ampliada, con runbooks DDoS/Phishing/Ransomware/SCADA, métricas, automatización y plantillas.</li>
+          <li>v2.0: senior con KPI y automatización.</li>
+          <li>v1.0: base del PRI.</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div class="container">
+    © 2025-10-26 — PRI Transporte Público. Uso interno.
+  </div>
+</footer>
+
+<script>
+  // TOC toggle
+  const toc = document.getElementById('toc');
+  document.getElementById('toggleTOC').addEventListener('click', () => {
+    toc.style.display = toc.style.display === 'none' ? 'block' : 'none';
+  });
+
+  // Expand / Collapse all details
+  const expandAll = document.getElementById('expandAll');
+  const collapseAll = document.getElementById('collapseAll');
+  expandAll.addEventListener('click', () => {
+    document.querySelectorAll('details').forEach(d => d.open = true);
+  });
+  collapseAll.addEventListener('click', () => {
+    document.querySelectorAll('details').forEach(d => d.open = false);
+  });
+
+  // Copy code blocks
+  function copyPre(btn) {
+    const pre = btn.parentElement;
+    const text = pre.innerText.replace('Copiar','').trim();
+    navigator.clipboard.writeText(text);
+    btn.textContent = 'Copiado ✓';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  }
+</script>
+</body>
+</html>
